@@ -18,7 +18,7 @@ class Player(Living, Mobile, Affectible):
     """
     The representation of the player in the game.
     """
-    def __init__(self, max_health: int, position: Position, direction: Direction, graph: dict[Position, [Position]]):
+    def __init__(self, max_health: int, position: Position, direction: Direction, graph: dict[Position, [Position]]) -> None:
         Living.__init__(self, max_health)
         Mobile.__init__(self, position, direction, graph)
         Affectible.__init__(self)
@@ -28,7 +28,7 @@ class PlayerComponent(Component):
     """
     Contains a player.
     """
-    def __init__(self, player: Player, render_position: Position, render_width: int, render_height: int):
+    def __init__(self, player: Player, render_position: Position, render_width: int, render_height: int) -> None:
         super().__init__(render_position, render_width, render_height)
 
         self.player = player

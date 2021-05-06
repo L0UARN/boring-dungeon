@@ -19,6 +19,9 @@ class HaloComponent(Component):
         self.pre_render()
 
     def pre_render(self) -> None:
+        """
+        Loads a buffer with the render of the halo.
+        """
         self.buffer = Surface((self.render_width, self.render_height), SRCALPHA)
         halo_texture = T.get("halo")
 
