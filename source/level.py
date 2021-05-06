@@ -133,7 +133,7 @@ class LevelComponent(Component):
     """
     Contains a level.
     """
-    def __init__(self, render_position: Position, render_width: int, render_height: int):
+    def __init__(self, level: Level, center: Position, render_position: Position, render_width: int, render_height: int):
         """
         :param render_position: The position on the surface on which the component has to be rendered.
         :param render_width: A hint to the width of the rendered component.
@@ -141,24 +141,19 @@ class LevelComponent(Component):
         """
         super().__init__(render_position, render_width, render_height)
 
-        self.center: Position = None
-        self.level: Level = None
-
-    def generate(self, difficulty: int, rng: Random) -> None:
-        """ Generates a new level for the component.
-
-        :param difficulty: How complex the level is to navigate.
-        :param rng: The random number generator used the generation process.
-        """
-        self.level = Level(difficulty, rng)
-        self.center = list(self.level.graph.keys())[0]
+        self.level: Level = level
+        self.center: Position = center
 
     def update(self, events: list[event.Event]) -> None:
         pass
 
     def render(self, surface: Surface) -> None:
         width_blocks: int = ceil(self.render_width / TILE_SIZE)
-        height_blocks: int = ceil(self.render_height // TILE_SIZE)
+        if width_blocks % 2 == 0:
+            width_blocks += 1
+        height_blocks: int = ceil(self.render_height / TILE_SIZE)
+        if height_blocks % 2 == 0:
+            height_blocks += 1
 
         offset_x = self.render_position.x - (width_blocks * TILE_SIZE - self.render_width) // 2
         offset_y = self.render_position.y - (height_blocks * TILE_SIZE - self.render_height) // 2
