@@ -65,7 +65,7 @@ class TileTexture(Texture):
 
     def load(self, path: str) -> None:
         loaded: Surface = transform.scale(image.load(path), (TILE_SIZE, TILE_SIZE))
-        self.surfaces = {Direction(i): transform.rotate(loaded, 90 * i) for i in range(0, 4)}
+        self.surfaces = {Direction(i): transform.rotate(loaded, -90 * i) for i in range(0, 4)}
 
     def render(self, surface: Surface, position: Position) -> None:
         surface.blit(list(self.surfaces.values())[0], (position.x, position.y))

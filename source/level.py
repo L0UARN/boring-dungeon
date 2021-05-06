@@ -166,7 +166,7 @@ class LevelComponent(Component):
                     T.get("stairs").render_direction(
                         surface,
                         Position(offset_x, offset_y),
-                        Position(x, y).direction(self.level.graph[Position(x, y)][0])
+                        Position(x, y).direction(self.level.graph[Position(x, y)][0]).opposite()
                     )
                 elif Position(x, y) in self.level.graph:
                     T.get("floor").render(surface,  Position(offset_x, offset_y))

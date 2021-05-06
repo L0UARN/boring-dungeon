@@ -1,7 +1,7 @@
 {
     "brick": {
         "type": "tile",
-        "path": "resources/brick_bordered.png"
+        "path": "resources/brick.png"
     },
     "floor": {
         "type": "tile",
@@ -14,5 +14,13 @@
     "stairs": {
         "type": "tile",
         "path": "resources/stairs.png"
+    },
+    "player": {
+        "type": "tile",
+        "path": "resources/player.png"
+    },
+    "halo": {
+        "type": "ui",
+        "path": "resources/halo.png"
     }
 }
