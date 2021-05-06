@@ -2,9 +2,10 @@ import pygame as pg
 
 from pygame import event, Surface
 from source.core.textures import TextureBook, Texture
-from source.core.tools import Position
+from source.core.tools import Position, Direction
 from source.core.component import Component
 from source.core.layer import Layer, LayerManager
+from source.level import Level
 
 
 class TextureComponent(Component):
@@ -37,6 +38,8 @@ if __name__ == '__main__':
     manager.add_layer("1", layer)
     manager.add_layer("2", layer_2)
     manager.set_focus("1")
+
+    level = Level(1)
 
     window = pg.display.set_mode((1280, 720))
     pg.display.set_caption("Boring")
