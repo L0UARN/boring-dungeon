@@ -1,14 +1,14 @@
 """ Texture-loading and texture-displaying set of tools.
 
 Classes:
-    Texture
-    TileTexture
-    UITexture
-    TextureBook
+    - Texture
+    - TileTexture
+    - UITexture
+    - TextureBook
 
 Constants:
-    UI_SCALE
-    TILE_SIZE
+    - UI_SCALE
+    - TILE_SIZE
 """
 
 from abc import abstractmethod
@@ -18,7 +18,7 @@ from source.core.tools import Position, Direction
 
 
 UI_SCALE: float = 1.0
-TILE_SIZE: int = 32
+TILE_SIZE: int = 48
 
 
 class Texture:
@@ -65,12 +65,12 @@ class TileTexture(Texture):
 
     def load(self, path: str) -> None:
         loaded: Surface = transform.scale(image.load(path), (TILE_SIZE, TILE_SIZE))
-        self.surfaces = {Direction(i): transform.rotate(loaded, 90 * (3 - i)) for i in range(0, 4)}
+        self.surfaces = {Direction(i): transform.rotate(loaded, 90 * i) for i in range(0, 4)}
 
     def render(self, surface: Surface, position: Position) -> None:
         surface.blit(list(self.surfaces.values())[0], (position.x, position.y))
 
-    def render_with_direction(self, surface: Surface, position: Position, direction: Direction) -> None:
+    def render_direction(self, surface: Surface, position: Position, direction: Direction) -> None:
         """ Renders the texture to the screen with a specific rotation.
 
         :param surface: The surface on which the texture has to be rendered.

@@ -1,9 +1,10 @@
 """ Tools used on game components.
 
 Classes:
-    Component
+    - Component
 """
 
+from abc import abstractmethod
 from pygame import event, Surface
 from source.core.tools import Position
 
@@ -22,6 +23,7 @@ class Component:
         self.render_width = render_width
         self.render_height = render_height
 
+    @abstractmethod
     def update(self, events: list[event.Event]) -> None:
         """ Updates the component with the latest events.
 
@@ -29,6 +31,7 @@ class Component:
         """
         pass
 
+    @abstractmethod
     def render(self, surface: Surface) -> None:
         """ Renders the visual elements of the component to the screen.
 

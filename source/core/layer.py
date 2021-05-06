@@ -1,8 +1,8 @@
 """ A set of classes used to manage the game state and display of components on screen.
 
 Classes:
-    Layer
-    LayerManager
+    - Layer
+    - LayerManager
 """
 
 from pygame import Surface, SRCALPHA, event

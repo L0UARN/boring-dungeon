@@ -1,6 +1,6 @@
 """
 Classes:
-    Mobile
+    - Mobile
 """
 
 from source.core.tools import Position, Direction
@@ -48,7 +48,7 @@ class Mobile:
         """
         if teleport:
             if position in self.graph:
-                self.direction = self.position.relative_direction(position)
+                self.direction = self.position.direction(position)
                 self.position = position
                 return True
             else:
@@ -75,7 +75,7 @@ class Mobile:
             point = parents[point]
 
         if path:
-            self.direction = self.position.relative_direction(path[0])
+            self.direction = self.position.direction(path[0])
             self.position = path[0]
             return True
         return False

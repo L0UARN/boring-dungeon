@@ -1,7 +1,7 @@
 """
 Classes:
-    Effect
-    Affectible
+    - Effect
+    - Affectible
 """
 
 from abc import abstractmethod

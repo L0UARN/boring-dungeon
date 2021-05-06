@@ -1,10 +1,18 @@
 {
-    "test_ui": {
-        "type": "ui",
-        "path": "resources/test_ui.png"
-    },
-    "test_tile": {
+    "brick": {
         "type": "tile",
-        "path": "resources/test_tile.png"
+        "path": "resources/brick_bordered.png"
+    },
+    "floor": {
+        "type": "tile",
+        "path": "resources/floor.png"
+    },
+    "room": {
+        "type": "tile",
+        "path": "resources/room.png"
+    },
+    "stairs": {
+        "type": "tile",
+        "path": "resources/stairs.png"
     }
 }

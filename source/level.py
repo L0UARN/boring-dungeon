@@ -1,23 +1,31 @@
 """
 Classes:
-    Level
-    LevelComponent
+    - Level
+    - LevelComponent
 """
 
-from source.rng_threads import GENERATION as rng
+from random import Random
+from math import ceil, floor
+from pygame import Surface, event
 from source.core.tools import Position, Direction
+from source.core.component import Component
+from source.core.textures import TILE_SIZE
+from source.resources import TEXTURES as T
 
 
 class Level:
     """
-    A level is the maze-exploration part of the game. It contains a navigable graph, rooms, and
-    stairs to go down a level.
+    A level is the maze-exploration part of the game. It contains a navigable graph, rooms, and stairs to go down a
+    level.
     """
-    def __init__(self, difficulty: int) -> None:
+    def __init__(self, difficulty: int, rng: Random) -> None:
         """
         :param difficulty: How complex the level is to navigate.
+        :param rng: The random number generator used the generation process.
         """
         self.difficulty = difficulty
+        self.rng = rng
+
         self.graph: dict[Position, list[Position]] = {}
         self.rooms: list[Position] = []
         self.stairs: list[Position] = []
@@ -49,11 +57,11 @@ class Level:
         continued_position = start.next_in_direction(direction)
 
         if start.x % 2 == 0 and start.y % 2 == 0:
-            if rng.random() < 0.25:
-                continued_direction = rng.choice(continued_direction.possible_turns())
+            if self.rng.random() < 0.25:
+                continued_direction = self.rng.choice(continued_direction.possible_turns())
                 continued_position = start.next_in_direction(continued_direction)
-            elif rng.random() < 0.10:
-                new_path_direction = rng.choice(continued_direction.possible_turns())
+            elif self.rng.random() < 0.10:
+                new_path_direction = self.rng.choice(continued_direction.possible_turns())
                 new_path_position = start.next_in_direction(new_path_direction)
 
                 if new_path_position not in self.graph:
@@ -91,19 +99,16 @@ class Level:
 
         if not best_positions:
             if len(possible_positions) > self.difficulty:
-                self.rooms = rng.sample(possible_positions, self.difficulty)
+                self.rooms = self.rng.sample(possible_positions, self.difficulty)
             else:
                 self.rooms = possible_positions
         elif len(best_positions) < self.difficulty:
             if len(best_positions) + len(possible_positions) > self.difficulty:
-                self.rooms = best_positions + rng.sample(
-                    possible_positions,
-                    self.difficulty - len(best_positions)
-                )
+                self.rooms = best_positions + self.rng.sample(possible_positions, self.difficulty - len(best_positions))
             else:
                 self.rooms = best_positions + possible_positions
         elif len(best_positions) > self.difficulty:
-            self.rooms = rng.sample(best_positions, self.difficulty)
+            self.rooms = self.rng.sample(best_positions, self.difficulty)
         else:  # len(best_positions) == self.difficulty
             self.rooms = best_positions
 
@@ -121,4 +126,58 @@ class Level:
         if len(dead_ends) == 1 or len(dead_ends) == 2:
             self.stairs = dead_ends
         else:  # len(dead_ends) > 2
-            self.stairs = rng.sample(dead_ends, 2)
+            self.stairs = self.rng.sample(dead_ends, 2)
+
+
+class LevelComponent(Component):
+    """
+    Contains a level.
+    """
+    def __init__(self, render_position: Position, render_width: int, render_height: int):
+        """
+        :param render_position: The position on the surface on which the component has to be rendered.
+        :param render_width: A hint to the width of the rendered component.
+        :param render_height: A hint to the height of the rendered component.
+        """
+        super().__init__(render_position, render_width, render_height)
+
+        self.center: Position = None
+        self.level: Level = None
+
+    def generate(self, difficulty: int, rng: Random) -> None:
+        """ Generates a new level for the component.
+
+        :param difficulty: How complex the level is to navigate.
+        :param rng: The random number generator used the generation process.
+        """
+        self.level = Level(difficulty, rng)
+        self.center = list(self.level.graph.keys())[0]
+
+    def update(self, events: list[event.Event]) -> None:
+        pass
+
+    def render(self, surface: Surface) -> None:
+        width_blocks: int = ceil(self.render_width / TILE_SIZE)
+        height_blocks: int = ceil(self.render_height // TILE_SIZE)
+
+        offset_x = self.render_position.x - (width_blocks * TILE_SIZE - self.render_width) // 2
+        offset_y = self.render_position.y - (height_blocks * TILE_SIZE - self.render_height) // 2
+
+        for x in range(self.center.x - floor(width_blocks / 2), self.center.x + ceil(width_blocks / 2)):
+            for y in range(self.center.y - floor(height_blocks / 2), self.center.y + ceil(height_blocks / 2)):
+                if Position(x, y) in self.level.rooms:
+                    T.get("room").render(surface, Position(offset_x, offset_y))
+                elif Position(x, y) in self.level.stairs:
+                    T.get("stairs").render_direction(
+                        surface,
+                        Position(offset_x, offset_y),
+                        Position(x, y).direction(self.level.graph[Position(x, y)][0])
+                    )
+                elif Position(x, y) in self.level.graph:
+                    T.get("floor").render(surface,  Position(offset_x, offset_y))
+                else:
+                    T.get("brick").render(surface,  Position(offset_x, offset_y))
+
+                offset_y += TILE_SIZE
+            offset_y = self.render_position.y - (height_blocks * TILE_SIZE - self.render_height) // 2
+            offset_x += TILE_SIZE
