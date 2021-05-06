@@ -9,17 +9,17 @@ from source.level import Level, LevelComponent
 if __name__ == '__main__':
     pg.init()
 
-    window = pg.display.set_mode((1280, 720), pg.RESIZABLE)
+    window = pg.display.set_mode((0, 0), pg.FULLSCREEN)
     pg.display.set_caption("Boring")
 
     generation_rng = Random()
     generation_rng.seed(a="test", version=2)
 
-    level = LevelComponent(Position(0, 0), window.get_width(), window.get_height())
-    level.generate(1, generation_rng)
+    level = Level(1, generation_rng)
+    level_display = LevelComponent(level, list(level.graph.keys())[0], Position(0, 0), window.get_width(), window.get_height())
 
-    game_layer = Layer(False, 2000, 2000)
-    game_layer.add_component("level", level)
+    game_layer = Layer(False, window.get_width(), window.get_height())
+    game_layer.add_component("level", level_display)
 
     manager = LayerManager()
     manager.add_layer("game", game_layer)
