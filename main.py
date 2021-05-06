@@ -1,7 +1,6 @@
 from random import Random
 import pygame as pg
-from source.core.textures import TextureBook, Texture
-from source.core.tools import Position, Direction
+from source.core.tools import Position
 from source.core.layer import Layer, LayerManager
 from source.level import Level, LevelComponent
 
