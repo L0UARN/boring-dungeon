@@ -6,6 +6,7 @@ from source.level import Level, LevelComponent
 from source.player import Player, PlayerComponent
 from source.halo import HaloComponent
 from source.core.textures import TILE_SIZE
+from source.room import Room, RoomComponent
 
 
 if __name__ == '__main__':
@@ -14,17 +15,20 @@ if __name__ == '__main__':
     window = pg.display.set_mode((0, 0), pg.FULLSCREEN)
     pg.display.set_caption("Boring")
 
-    generation_rng = Random()
-    generation_rng.seed(a="test", version=2)
+    level_generation_rng = Random()
+    level_generation_rng.seed(a="test", version=2)
 
-    level = Level(1, generation_rng)
-    level_display = LevelComponent(level, list(level.graph.keys())[0], Position(0, 0), window.get_width(), window.get_height())
-    player = Player(10, list(level.graph.keys())[0], Direction.NORTH, level.graph)
-    player_display = PlayerComponent(player, Position((level_display.render_width - TILE_SIZE) // 2, (level_display.render_height - TILE_SIZE) // 2), TILE_SIZE, TILE_SIZE)
+    # level = Level(1, level_generation_rng)
+    # level_display = LevelComponent(level, list(level.graph.keys())[0], Position(0, 0), window.get_width(), window.get_height())
+    room = Room(1, Random(), [Direction.EAST, Direction.NORTH])
+    room_display = RoomComponent(room, list(room.graph.keys())[0], Position(0, 0), window.get_width(), window.get_height())
+    player = Player(10, list(room.graph.keys())[0], Direction.NORTH, room.graph)
+    player_display = PlayerComponent(player, Position((room_display.render_width - TILE_SIZE) // 2, (room_display.render_height - TILE_SIZE) // 2), TILE_SIZE, TILE_SIZE)
     halo = HaloComponent(Position(0, 0), window.get_width(), window.get_height())
 
     game_layer = Layer(False, window.get_width(), window.get_height())
-    game_layer.add_component("level", level_display)
+    # game_layer.add_component("level", level_display)
+    game_layer.add_component("room", room_display)
     game_layer.add_component("player", player_display)
     game_layer.add_component("halo", halo)
 
@@ -39,7 +43,7 @@ if __name__ == '__main__':
                 run = False
 
         manager.update(events)
-        level_display.center = player.position
+        room_display.center = player.position
 
         manager.render(window)
         pg.display.update()

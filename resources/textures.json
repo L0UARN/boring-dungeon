@@ -15,6 +15,10 @@
         "type": "tile",
         "path": "resources/stairs.png"
     },
+    "door": {
+        "type": "tile",
+        "path": "resources/door.png"
+    },
     "player": {
         "type": "tile",
         "path": "resources/player.png"

@@ -135,6 +135,7 @@ class LevelComponent(Component):
     """
     def __init__(self, level: Level, center: Position, render_position: Position, render_width: int, render_height: int):
         """
+        :param level: The level to display.
         :param render_position: The position on the surface on which the component has to be rendered.
         :param render_width: A hint to the width of the rendered component.
         :param render_height: A hint to the height of the rendered component.
