@@ -25,10 +25,12 @@ class Room:
         self.difficulty = difficulty
         self.rng = rng
 
-        self.graph: dict[Position, list[Position]] = {}
-        self.doors: list[tuple[Position, Direction]] = [(Position(0, 0), d) for d in openings]
         self.width = 0
         self.height = 0
+        self.graph: dict[Position, list[Position]] = {}
+
+        self.openings = openings
+        self.doors: dict[Position, Direction] = {}
 
         self.generate()
 
@@ -62,30 +64,30 @@ class Room:
 
         deletions = self.rng.sample(list(self.graph.keys()), self.difficulty ** 2)
         for deletion in deletions:
-            if deletion.x > 0 and deletion.x < self.width - 1:
-                if deletion.y > 0 and deletion.y < self.height - 1:
-                    for direction in Direction:
-                        if deletion.next_in_direction(direction) in self.graph:
-                            self.graph[deletion.next_in_direction(direction)].remove(deletion)
-                    self.graph.pop(deletion)
-
+            if 0 < deletion.x < self.width - 1 and 0 < deletion.y < self.height - 1:
+                for direction in Direction:
+                    if deletion.next_in_direction(direction) in self.graph:
+                        self.graph[deletion.next_in_direction(direction)].remove(deletion)
+                self.graph.pop(deletion)
 
     def _generate_doors(self) -> None:
         """
         Generates the exits on the sides of the room.
         """
-        for i in range(len(self.doors)):
-            if self.doors[i][1] == Direction.NORTH:
-                self.doors[i] = (Position(self.rng.randint(0, self.width - 1), -1), self.doors[i][1])
-            elif self.doors[i][1] == Direction.EAST:
-                self.doors[i] = (Position(self.width, self.rng.randint(0, self.height - 1)), self.doors[i][1])
-            elif self.doors[i][1] == Direction.SOUTH:
-                self.doors[i] = (Position(self.rng.randint(0, self.width - 1), self.height), self.doors[i][1])
-            elif self.doors[i][1] == Direction.WEST:
-                self.doors[i] = (Position(-1, self.rng.randint(0, self.height - 1)), self.doors[i][1])
+        for opening in self.openings:
+            position = Position(0, 0)
+            if opening == Direction.NORTH:
+                position = Position(self.rng.randint(0, self.width - 1), -1)
+            elif opening == Direction.EAST:
+                position = Position(self.width, self.rng.randint(0, self.height - 1))
+            elif opening == Direction.SOUTH:
+                position = Position(self.rng.randint(0, self.width - 1), self.height)
+            elif opening == Direction.WEST:
+                position = Position(-1, self.rng.randint(0, self.height - 1))
 
-            self.graph[self.doors[i][0]] = [self.doors[i][0].next_in_direction(self.doors[i][1].opposite())]
-            self.graph[self.doors[i][0].next_in_direction(self.doors[i][1].opposite())].append(self.doors[i][0])
+            self.doors[position] = opening
+            self.graph[position] = [position.next_in_direction(opening.opposite())]
+            self.graph[position.next_in_direction(opening.opposite())].append(position)
 
 
 class RoomComponent(Component):
@@ -120,19 +122,15 @@ class RoomComponent(Component):
 
         for x in range(self.center.x - floor(width_blocks / 2), self.center.x + ceil(width_blocks / 2)):
             for y in range(self.center.y - floor(height_blocks / 2), self.center.y + ceil(height_blocks / 2)):
-                is_door = False
-                for door in self.room.doors:
-                    if Position(x, y) == door[0]:
-                        T.get("door").render_direction(
-                            surface, Position(offset_x, offset_y),
-                            door[1]
-                        )
-                        is_door = True
-                        break
-
-                if not is_door and Position(x, y) in self.room.graph:
+                if Position(x, y) in self.room.doors:
+                    T.get("door").render_direction(
+                        surface,
+                        Position(offset_x, offset_y),
+                        Position(x, y).direction(self.room.graph[Position(x, y)][0])
+                    )
+                elif Position(x, y) in self.room.graph:
                     T.get("floor").render(surface, Position(offset_x, offset_y))
-                elif not is_door:
+                else:
                     T.get("brick").render(surface, Position(offset_x, offset_y))
 
                 offset_y += TILE_SIZE
