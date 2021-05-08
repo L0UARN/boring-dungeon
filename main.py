@@ -7,6 +7,7 @@ from source.halo import HaloComponent
 from source.core.tools import Position, Direction
 from source.core.texture import TILE_SIZE
 from source.box import BoxComponent
+from source.text import TextComponent
 
 
 if __name__ == '__main__':
@@ -23,23 +24,32 @@ if __name__ == '__main__':
     player = Player(10, list(level.graph.keys())[0], Direction.NORTH, level.graph)
     player_display = PlayerComponent(player, Position((window.get_width() - TILE_SIZE) / 2, (window.get_height() - TILE_SIZE) / 2), TILE_SIZE, TILE_SIZE)
     halo = HaloComponent(Position(0, 0), window.get_width(), window.get_height())
-    box = BoxComponent(Position(0, 0), window.get_width(), window.get_height() * 0.25)
+    box = BoxComponent(Position(0, window.get_height() * 0.75), window.get_width(), window.get_height() * 0.25)
+    text = TextComponent("resources/font.ttf", 32, (0, 0, 0), Position(0, window.get_height() * 0.75), window.get_width(), window.get_height() * 0.25, True, 15.0)
+    text.set_text(["Hello!", "My name is Louarn.", "This is the 3rd line..."])
 
     level_layer = Layer(False, window.get_width(), window.get_height())
     level_layer.add_component("level", level_display)
     level_layer.add_component("player", player_display)
     level_layer.add_component("halo", halo)
     level_layer.add_component("box", box)
+    level_layer.add_component("text", text)
 
     manager = LayerManager()
     manager.add_layer("level", level_layer)
 
     run = True
+    count = 0
+
     while run:
         events: list[pg.event.Event] = pg.event.get()
         for event in events:
             if event.type == pg.QUIT:
                 run = False
+
+        count += 1
+        if count == 2000:
+            text.set_text(["Wow this has changed!", "There's new text here!"])
 
         manager.update(events)
         level_display.center = player.position
