@@ -5,6 +5,7 @@ Classes:
     - Position
 """
 
+from __future__ import annotations
 from enum import Enum
 
 
@@ -30,15 +31,13 @@ class Direction(Enum):
         elif self == Direction.WEST:
             return "West"
 
-    # TODO: change `-> object` to `-> Direction` when supported.
-    def opposite(self) -> object:
+    def opposite(self) -> Direction:
         """Get the opposite direction of the current one.
         :return: a Direction equal to the opposite direction of self.
         """
         return Direction((self.value + 2) % 4)
 
-    # TODO: change `-> list` to `-> list[Direction]` when supported.
-    def possible_turns(self) -> list:
+    def possible_turns(self) -> list[Direction]:
         """Get a list of the possible turns one can make from the current direction.
         :return: A list of the 2 directions corresponding to a 90 degrees turn from self.
         """
@@ -60,15 +59,13 @@ class Position:
     def __hash__(self) -> int:
         return hash((self.x, self.y))
 
-    # TODO: change `other: object` to `other: Position` when supported.
-    def __eq__(self, other: object) -> int:
+    def __eq__(self, other: Position) -> int:
         return self.x == other.x and self.y == other.y
 
     def __repr__(self) -> str:
         return f"({self.x};{self.y})"
 
-    # TODO: change `-> object` to `-> Position` when supported.
-    def next_in_direction(self, direction: Direction) -> object:
+    def next_in_direction(self, direction: Direction) -> Position:
         """ Get the next position in a given direction.
 
         :param direction: The direction in which the next position will be determined.
@@ -83,8 +80,7 @@ class Position:
         else:  # direction == Direction.WEST
             return Position(self.x - 1, self.y)
 
-    # TODO: change `other: object` to `other: Position` when supported.
-    def direction(self, other: object) -> Direction:
+    def direction(self, other: Position) -> Direction:
         """ Get the direction in which the other is.
 
         :param other: Another position.

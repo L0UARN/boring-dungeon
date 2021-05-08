@@ -9,7 +9,11 @@
     },
     "room": {
         "type": "tile",
-        "path": "resources/room.png"
+        "path": "resources/room.png",
+        "animated": true,
+        "animation_duration": 2.0,
+        "frame_count": 16,
+        "loop_animation": true
     },
     "stairs": {
         "type": "tile",
@@ -25,6 +29,10 @@
     },
     "halo": {
         "type": "ui",
-        "path": "resources/halo.png"
+        "path": "resources/halo.png",
+        "animated": true,
+        "animation_duration": 1.5,
+        "frame_count": 4,
+        "loop_animation": true
     }
 }

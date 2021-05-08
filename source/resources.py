@@ -4,7 +4,7 @@ Constants:
     - TEXTURES
 """
 
-from source.core.textures import TextureBook
+from source.core.texture import TextureBook
 
 
 TEXTURES = TextureBook()

@@ -9,7 +9,7 @@ from math import ceil, floor
 from pygame import Surface, event
 from source.core.tools import Position, Direction
 from source.core.component import Component
-from source.core.textures import TILE_SIZE
+from source.core.texture import TILE_SIZE
 from source.resources import TEXTURES as T
 
 
@@ -145,6 +145,11 @@ class LevelComponent(Component):
         self.level: Level = level
         self.center: Position = center
 
+        self.room_texture = T.get("room")
+        self.stairs_texture = T.get("stairs")
+        self.floor_texture = T.get("floor")
+        self.brick_texture = T.get("brick")
+
     def update(self, events: list[event.Event]) -> None:
         pass
 
@@ -162,17 +167,17 @@ class LevelComponent(Component):
         for x in range(self.center.x - floor(width_blocks / 2), self.center.x + ceil(width_blocks / 2)):
             for y in range(self.center.y - floor(height_blocks / 2), self.center.y + ceil(height_blocks / 2)):
                 if Position(x, y) in self.level.rooms:
-                    T.get("room").render(surface, Position(offset_x, offset_y))
+                    self.room_texture.render(surface, Position(offset_x, offset_y))
                 elif Position(x, y) in self.level.stairs:
-                    T.get("stairs").render_direction(
+                    self.stairs_texture.render(
                         surface,
                         Position(offset_x, offset_y),
                         Position(x, y).direction(self.level.graph[Position(x, y)][0]).opposite()
                     )
                 elif Position(x, y) in self.level.graph:
-                    T.get("floor").render(surface,  Position(offset_x, offset_y))
+                    self.floor_texture.render(surface,  Position(offset_x, offset_y))
                 else:
-                    T.get("brick").render(surface,  Position(offset_x, offset_y))
+                    self.brick_texture.render(surface,  Position(offset_x, offset_y))
 
                 offset_y += TILE_SIZE
             offset_y = self.render_position.y - (height_blocks * TILE_SIZE - self.render_height) // 2

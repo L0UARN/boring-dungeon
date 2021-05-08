@@ -34,6 +34,8 @@ class PlayerComponent(Component):
         self.player = player
         self.last_moved = 0
 
+        self.player_texture = T.get("player")
+
     def update(self, events: list[pg.event.Event]) -> None:
         pressed = pg.key.get_pressed()
         if time() - self.last_moved >= 0.20:
@@ -51,4 +53,4 @@ class PlayerComponent(Component):
                 self.last_moved = time()
 
     def render(self, surface: pg.Surface) -> None:
-        T.get("player").render_direction(surface, self.render_position, self.player.direction)
+        self.player_texture.render(surface, self.render_position, self.player.direction)
