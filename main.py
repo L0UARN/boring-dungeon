@@ -4,9 +4,9 @@ from source.core.layer import LayerManager, Layer
 from source.level import Level, LevelComponent
 from source.player import Player, PlayerComponent
 from source.halo import HaloComponent
-from time import time
 from source.core.tools import Position, Direction
-from source.core.texture import TextureType, Texture, TextureBook, TILE_SIZE
+from source.core.texture import TILE_SIZE
+from source.box import BoxComponent
 
 
 if __name__ == '__main__':
@@ -23,11 +23,13 @@ if __name__ == '__main__':
     player = Player(10, list(level.graph.keys())[0], Direction.NORTH, level.graph)
     player_display = PlayerComponent(player, Position((window.get_width() - TILE_SIZE) / 2, (window.get_height() - TILE_SIZE) / 2), TILE_SIZE, TILE_SIZE)
     halo = HaloComponent(Position(0, 0), window.get_width(), window.get_height())
+    box = BoxComponent(Position(0, 0), window.get_width(), window.get_height() * 0.25)
 
     level_layer = Layer(False, window.get_width(), window.get_height())
     level_layer.add_component("level", level_display)
     level_layer.add_component("player", player_display)
     level_layer.add_component("halo", halo)
+    level_layer.add_component("box", box)
 
     manager = LayerManager()
     manager.add_layer("level", level_layer)

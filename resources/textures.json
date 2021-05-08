@@ -34,5 +34,17 @@
         "animation_duration": 1.5,
         "frame_count": 4,
         "loop_animation": true
+    },
+    "box_corner": {
+        "type": "ui",
+        "path": "resources/box_corner.png"
+    },
+    "box_side": {
+        "type": "ui",
+        "path": "resources/box_side.png"
+    },
+    "box_inside": {
+        "type": "ui",
+        "path": "resources/box_inside.png"
     }
 }
