@@ -111,9 +111,17 @@ class RoomComponent(Component):
         self.brick_texture = T.get("brick")
 
     def update(self, events: list[event.Event]) -> None:
+        """ Updates the room with the latest events.
+
+        :param events: The list of the lastly pulled events.
+        """
         pass
 
     def render(self, surface: Surface) -> None:
+        """ Renders the room on the specified surface.
+
+        :param surface: The surface on which to render the room.
+        """
         width_blocks: int = ceil(self.render_width / TILE_SIZE)
         if width_blocks % 2 == 0:
             width_blocks += 1

@@ -1,9 +1,8 @@
 """ Texture-loading and texture-displaying set of tools.
 
 Classes:
+    - TextureType
     - Texture
-    - TileTexture
-    - UITexture
     - TextureBook
 
 Constants:
@@ -11,7 +10,6 @@ Constants:
     - TILE_SIZE
 """
 
-from abc import abstractmethod
 from json import loads
 from enum import Enum
 from time import time
@@ -135,7 +133,7 @@ class TextureBook:
     def __init__(self) -> None:
         self.book: dict[str, Texture] = {}
 
-    def load(self, path: str):
+    def load(self, path: str) -> None:
         """ Loads textures from a JSON file.
 
         :param path: the path of the JSON file to load the textures from.

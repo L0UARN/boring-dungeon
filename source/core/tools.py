@@ -33,12 +33,14 @@ class Direction(Enum):
 
     def opposite(self) -> Direction:
         """Get the opposite direction of the current one.
+
         :return: a Direction equal to the opposite direction of self.
         """
         return Direction((self.value + 2) % 4)
 
     def possible_turns(self) -> list[Direction]:
         """Get a list of the possible turns one can make from the current direction.
+
         :return: A list of the 2 directions corresponding to a 90 degrees turn from self.
         """
         return [Direction((self.value + 1) % 4), Direction((self.value + 3) % 4)]

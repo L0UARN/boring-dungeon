@@ -10,7 +10,7 @@ class Mobile:
     """
     A mobile entity is an entity which can move inside a graph.
     """
-    def __init__(self, position: Position, direction: Direction, graph: dict[Position, [Position]]):
+    def __init__(self, position: Position, direction: Direction, graph: dict[Position, [Position]]) -> None:
         """
         :param position: The initial position of the entity inside of the graph.
         :param direction: The initial orientation of the entity.

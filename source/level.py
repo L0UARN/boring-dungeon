@@ -133,7 +133,7 @@ class LevelComponent(Component):
     """
     Contains a level.
     """
-    def __init__(self, level: Level, center: Position, render_position: Position, render_width: int, render_height: int):
+    def __init__(self, level: Level, center: Position, render_position: Position, render_width: int, render_height: int) -> None:
         """
         :param level: The level to display.
         :param render_position: The position on the surface on which the component has to be rendered.
@@ -151,9 +151,17 @@ class LevelComponent(Component):
         self.brick_texture = T.get("brick")
 
     def update(self, events: list[event.Event]) -> None:
+        """ Updates the level with the latest events.
+
+        :param events: The list of the lastly pulled events.
+        """
         pass
 
     def render(self, surface: Surface) -> None:
+        """ Renders the level to the specified surface.
+
+        :param surface: The surface on which to render the level.
+        """
         width_blocks: int = ceil(self.render_width / TILE_SIZE)
         if width_blocks % 2 == 0:
             width_blocks += 1
