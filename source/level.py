@@ -14,9 +14,9 @@ from source.core.texture import TILE_SIZE
 from source.resources import TEXTURES as T
 from source.core.layer import Layer
 from source.player import Player, PlayerComponent
-from source.halo import HaloComponent
-from source.box import BoxComponent
-from source.text import TextComponent
+from ui.halo import HaloComponent
+from ui.box import BoxComponent
+from ui.text import TextComponent
 
 
 class Level:
