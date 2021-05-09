@@ -2,6 +2,7 @@
 Classes:
     - Level
     - LevelComponent
+    - LevelLayer
 """
 
 from random import Random
@@ -11,6 +12,11 @@ from source.core.tools import Position, Direction
 from source.core.component import Component
 from source.core.texture import TILE_SIZE
 from source.resources import TEXTURES as T
+from source.core.layer import Layer
+from source.player import Player, PlayerComponent
+from source.halo import HaloComponent
+from source.box import BoxComponent
+from source.text import TextComponent
 
 
 class Level:
@@ -190,3 +196,47 @@ class LevelComponent(Component):
                 offset_y += TILE_SIZE
             offset_y = self.render_position.y - (height_blocks * TILE_SIZE - self.render_height) // 2
             offset_x += TILE_SIZE
+
+
+class LevelLayer(Layer):
+    """
+    A layer containing all the components that makes up the level exploring part of the game.
+    """
+    def __init__(self, level: Level, player: Player, width: int, height: int) -> None:
+        """
+        :param level: The level which will be displayed.
+        :param player: The player exploring the level.
+        :param width: The width of the render area.
+        :param height: The height of the render area.
+        """
+        super().__init__(False, width, height)
+        self.level_display = LevelComponent(level, list(level.graph.keys())[0], Position(0, 0), width, height)
+        self.player_display = PlayerComponent(player, Position((width - TILE_SIZE) // 2, (height - TILE_SIZE) // 2), TILE_SIZE, TILE_SIZE)
+        self.halo_effect = HaloComponent(Position(0, 0), width, height)
+        self.info_box = BoxComponent(Position(0, int(height * 0.75)), width, int(height * 0.25))
+        self.info_text = TextComponent("resources/font.ttf", 32, (0, 0, 0), Position(0, int(height * 0.75)), width, int(height * 0.25), True, 16.0)
+
+    def update(self, events: list[event.Event]) -> None:
+        """ Updates the layer.
+
+        :param events: A list of the lastly pulled events.
+        """
+        super().update(events)
+        self.level_display.update(events)
+        self.player_display.update(events)
+        self.level_display.center = self.player_display.player.position
+        self.halo_effect.update(events)
+        self.info_box.update(events)
+        self.info_text.update(events)
+
+    def render(self, surface: Surface) -> None:
+        """ Renders the layer to the specified surface.
+
+        :param surface: The surface on which the layer will be rendered.
+        """
+        super().render(surface)
+        self.level_display.render(surface)
+        self.player_display.render(surface)
+        self.halo_effect.render(surface)
+        self.info_box.render(surface)
+        self.info_text.render(surface)

@@ -1,13 +1,10 @@
 from random import Random
 import pygame as pg
-from source.core.layer import LayerManager, Layer
-from source.level import Level, LevelComponent
-from source.player import Player, PlayerComponent
-from source.halo import HaloComponent
+from source.core.layer import LayerManager
+from source.level import Level, LevelLayer
+from source.room import Room, RoomLayer
+from source.player import Player
 from source.core.tools import Position, Direction
-from source.core.texture import TILE_SIZE
-from source.box import BoxComponent
-from source.text import TextComponent
 
 
 if __name__ == '__main__':
@@ -19,24 +16,17 @@ if __name__ == '__main__':
     generation_rng = Random()
     generation_rng.seed(a="test", version=2)
 
-    level = Level(1, generation_rng)
-    level_display = LevelComponent(level, Position(0, 0), Position(0, 0), window.get_width(), window.get_height())
-    player = Player(10, list(level.graph.keys())[0], Direction.NORTH, level.graph)
-    player_display = PlayerComponent(player, Position((window.get_width() - TILE_SIZE) / 2, (window.get_height() - TILE_SIZE) / 2), TILE_SIZE, TILE_SIZE)
-    halo = HaloComponent(Position(0, 0), window.get_width(), window.get_height())
-    box = BoxComponent(Position(0, window.get_height() * 0.75), window.get_width(), window.get_height() * 0.25)
-    text = TextComponent("resources/font.ttf", 32, (0, 0, 0), Position(0, window.get_height() * 0.75), window.get_width(), window.get_height() * 0.25, True, 15.0)
-    text.set_text(["Hello!", "My name is Louarn.", "This is the 3rd line..."])
+    level = Level(5, generation_rng)
+    rooms = [Room(5, generation_rng, [Direction.NORTH, Direction.SOUTH]) for room in level.rooms]
+    player = Player(10, list(rooms[0].graph.keys())[0], Direction.NORTH, rooms[0].graph)
 
-    level_layer = Layer(False, window.get_width(), window.get_height())
-    level_layer.add_component("level", level_display)
-    level_layer.add_component("player", player_display)
-    level_layer.add_component("halo", halo)
-    level_layer.add_component("box", box)
-    level_layer.add_component("text", text)
+    level_layer = LevelLayer(level, player, window.get_width(), window.get_height())
+    room_layer = RoomLayer(rooms[0], player, window.get_width(), window.get_height())
 
     manager = LayerManager()
     manager.add_layer("level", level_layer)
+    manager.add_layer("room", room_layer)
+    manager.set_focus("room")
 
     run = True
     count = 0
@@ -47,12 +37,7 @@ if __name__ == '__main__':
             if event.type == pg.QUIT:
                 run = False
 
-        count += 1
-        if count == 2000:
-            text.set_text(["Wow this has changed!", "There's new text here!"])
-
         manager.update(events)
-        level_display.center = player.position
 
         manager.render(window)
         pg.display.update()
