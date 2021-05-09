@@ -48,6 +48,7 @@ class TextComponent(Component):
         if not self.animated:
             self.pre_render()
         else:
+            self.current_lines = []
             self.apparition_time = -1
 
     def set_color(self, color: tuple[int, int, int]) -> None:

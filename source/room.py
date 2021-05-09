@@ -50,8 +50,8 @@ class Room:
         """
         Generates an empty room.
         """
-        self.width = self.rng.randint(8, 8 + self.difficulty * 4)
-        self.height = self.rng.randint(8, 8 + self.difficulty * 4)
+        self.width = self.rng.randint(8, 8 + self.difficulty * 2)
+        self.height = self.rng.randint(8, 8 + self.difficulty * 2)
 
         for x in range(self.width):
             for y in range(self.height):
@@ -67,7 +67,7 @@ class Room:
                 if x != 0:
                     self.graph[Position(x, y)].append(Position(x, y).next_in_direction(Direction.WEST))
 
-        deletions = self.rng.sample(list(self.graph.keys()), self.difficulty ** 2)
+        deletions = self.rng.sample(list(self.graph.keys()), self.rng.randint(int(self.width * self.height * 0.10), int(self.width * self.height * 0.50)))
         for deletion in deletions:
             if 0 < deletion.x < self.width - 1 and 0 < deletion.y < self.height - 1:
                 for direction in Direction:

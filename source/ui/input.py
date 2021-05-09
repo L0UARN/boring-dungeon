@@ -51,6 +51,12 @@ class InputComponent(Component):
         """
         return self.text_input.get_text()
 
+    def clear_text(self) -> None:
+        """
+        Clears out the text inside of the input.
+        """
+        self.text_input.clear_text()
+
     def update(self, events: list[event.Event]) -> None:
         """ Updates the input.
 

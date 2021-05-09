@@ -129,10 +129,12 @@ class Level:
             elif len(self.graph[position]) == 1:
                 dead_ends.append(position)
 
-        if len(dead_ends) == 1 or len(dead_ends) == 2:
+        if 1 <= len(dead_ends) <= 2:
             self.stairs = dead_ends
-        else:  # len(dead_ends) > 2
+        elif len(dead_ends) > 2:
             self.stairs = self.rng.sample(dead_ends, 2)
+        else:
+            self.stairs = [self.rng.choice(list(self.graph.keys())[1:])]
 
 
 class LevelComponent(Component):
@@ -189,9 +191,9 @@ class LevelComponent(Component):
                         Position(x, y).direction(self.level.graph[Position(x, y)][0]).opposite()
                     )
                 elif Position(x, y) in self.level.graph:
-                    self.floor_texture.render(surface,  Position(offset_x, offset_y))
+                    self.floor_texture.render(surface, Position(offset_x, offset_y))
                 else:
-                    self.brick_texture.render(surface,  Position(offset_x, offset_y))
+                    self.brick_texture.render(surface, Position(offset_x, offset_y))
 
                 offset_y += TILE_SIZE
             offset_y = self.render_position.y - (height_blocks * TILE_SIZE - self.render_height) // 2
