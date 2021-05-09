@@ -50,6 +50,14 @@ class TextComponent(Component):
         else:
             self.apparition_time = -1
 
+    def set_color(self, color: tuple[int, int, int]) -> None:
+        """ Changes the color of the text.
+
+        :param color: The color of the text.
+        """
+        self.color = color
+        self.pre_render()
+
     def pre_render(self) -> None:
         """
         Renders the text to a buffer.
@@ -88,7 +96,7 @@ class TextComponent(Component):
             for line in self.current_lines:
                 self.rendered_lines.append(self.font.render(line, False, self.color))
 
-        offset = self.render_position.y + (self.render_height - sum([line.get_height() + 16 for line in self.rendered_lines])) / 2
+        offset = self.render_position.y + (self.render_height - (sum([line.get_height() + 16 for line in self.rendered_lines]) - 16)) / 2
         for line in self.rendered_lines:
             surface.blit(line, (self.render_position.x + (self.render_width - line.get_width()) / 2, offset))
             offset += line.get_height() + 16

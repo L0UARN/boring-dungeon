@@ -50,5 +50,9 @@
     "box_inside": {
         "type": "ui",
         "path": "resources/box_inside.png"
+    },
+    "menu_background": {
+        "type": "ui",
+        "path": "resources/menu_background.png"
     }
 }
