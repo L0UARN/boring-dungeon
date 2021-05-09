@@ -15,12 +15,13 @@ from enum import Enum
 from time import time
 from math import floor
 from copy import copy
-from pygame import Surface, image, transform, Rect
+from pygame import Surface, image, transform, Rect, display
 from source.core.tools import Position, Direction
 
 
-UI_SCALE: float = 1.0
-TILE_SIZE: int = 48
+display.init()
+UI_SCALE: float = display.Info().current_w // 1920
+TILE_SIZE: int = display.Info().current_w // 40
 
 
 class TextureType(Enum):
