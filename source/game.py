@@ -4,6 +4,7 @@ Classes:
 """
 
 from random import Random, choice
+from time import time
 import pygame as pg
 from source.core.layer import LayerManager
 from source.player import Player
@@ -95,6 +96,7 @@ class Game(LayerManager):
 
         self.player.position = list(self.level.graph.keys())[0]
         self.player.graph = self.level.graph
+        self.level_layer.player_display.last_moved = time() + 0.2
 
         self.rooms = {self.level.rooms[i]: Room(self.level.difficulty, self.generation_rng, [p.direction(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
         self.current_room = list(self.rooms.keys())[0]
@@ -119,6 +121,7 @@ class Game(LayerManager):
         direction_to_pos_doors = {self.rooms[self.current_room].doors[p]: p for p in self.rooms[self.current_room].doors}
         self.player.position = direction_to_pos_doors[self.player.direction.opposite()].next_in_direction(self.player.direction)
         self.player.graph = self.rooms[self.current_room].graph
+        self.level_layer.player_display.last_moved = time() + 0.2
 
         self.room_layer.info_text.set_text([
             f"Level: {self.level.difficulty}",
@@ -132,6 +135,7 @@ class Game(LayerManager):
         """
         self.player.position = self.current_room.next_in_direction(self.player.direction)
         self.player.graph = self.level.graph
+        self.level_layer.player_display.last_moved = time() + 0.2
 
         self.level_layer.info_text.set_text([
             f"Level: {self.level.difficulty}",
