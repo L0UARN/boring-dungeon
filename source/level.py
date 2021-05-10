@@ -10,7 +10,7 @@ from math import ceil, floor
 from pygame import Surface, event
 from source.core.tools import Position, Direction
 from source.core.component import Component
-from source.core.texture import TILE_SIZE
+from source.core.texture import Texture
 from source.resources import TEXTURES as T
 from source.core.layer import Layer
 from source.player import Player, PlayerComponent
@@ -176,15 +176,15 @@ class LevelComponent(Component):
 
         :param surface: The surface on which to render the level.
         """
-        width_blocks: int = ceil(self.render_width / TILE_SIZE)
+        width_blocks: int = ceil(self.render_width / Texture.TileSize)
         if width_blocks % 2 == 0:
             width_blocks += 1
-        height_blocks: int = ceil(self.render_height / TILE_SIZE)
+        height_blocks: int = ceil(self.render_height / Texture.TileSize)
         if height_blocks % 2 == 0:
             height_blocks += 1
 
-        offset_x = self.render_position.x - (width_blocks * TILE_SIZE - self.render_width) // 2
-        offset_y = self.render_position.y - (height_blocks * TILE_SIZE - self.render_height) // 2
+        offset_x = self.render_position.x - (width_blocks * Texture.TileSize - self.render_width) // 2
+        offset_y = self.render_position.y - (height_blocks * Texture.TileSize - self.render_height) // 2
 
         for x in range(self.center.x - floor(width_blocks / 2), self.center.x + ceil(width_blocks / 2)):
             for y in range(self.center.y - floor(height_blocks / 2), self.center.y + ceil(height_blocks / 2)):
@@ -201,9 +201,9 @@ class LevelComponent(Component):
                 else:
                     self.brick_texture.render(surface, Position(offset_x, offset_y))
 
-                offset_y += TILE_SIZE
-            offset_y = self.render_position.y - (height_blocks * TILE_SIZE - self.render_height) // 2
-            offset_x += TILE_SIZE
+                offset_y += Texture.TileSize
+            offset_y = self.render_position.y - (height_blocks * Texture.TileSize - self.render_height) // 2
+            offset_x += Texture.TileSize
 
 
 class LevelLayer(Layer):
@@ -219,7 +219,7 @@ class LevelLayer(Layer):
         """
         super().__init__(False, width, height)
         self.level_display = LevelComponent(level, list(level.graph.keys())[0], Position(0, 0), width, height)
-        self.player_display = PlayerComponent(player, Position((width - TILE_SIZE) // 2, (height - TILE_SIZE) // 2), TILE_SIZE, TILE_SIZE)
+        self.player_display = PlayerComponent(player, Position((width - Texture.TileSize) // 2, (height - Texture.TileSize) // 2), Texture.TileSize, Texture.TileSize)
         self.halo_effect = HaloComponent(Position(0, 0), width, height)
         self.info_box = BoxComponent(Position(0, int(height * 0.75)), width, int(height * 0.25))
         self.info_text = TextComponent("resources/font.ttf", 32, (0, 0, 0), Position(0, int(height * 0.75)), width, int(height * 0.25), True, 16.0)

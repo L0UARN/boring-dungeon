@@ -11,6 +11,7 @@ from source.level import Level, LevelLayer
 from source.core.tools import Position, Direction
 from source.room import Room, RoomLayer
 from source.menu import MenuLayer
+from source.core.texture import Texture
 
 
 class Game(LayerManager):
@@ -24,6 +25,9 @@ class Game(LayerManager):
         self.window = pg.display.set_mode((0, 0), pg.FULLSCREEN)
         pg.display.set_caption("Boring Dungeon")
         pg.display.set_icon(pg.transform.scale(pg.image.load("resources/icon.png"), (64, 64)))
+
+        Texture.UIScale = self.window.get_width() / 1920
+        Texture.TileSize = self.window.get_width() // 40
 
         self.generation_rng: Random = None
         self.seed: str = None

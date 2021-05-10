@@ -4,10 +4,6 @@ Classes:
     - TextureType
     - Texture
     - TextureBook
-
-Constants:
-    - UI_SCALE
-    - TILE_SIZE
 """
 
 from json import loads
@@ -17,10 +13,6 @@ from math import floor
 from copy import copy
 from pygame import Surface, image, transform, Rect
 from source.core.tools import Position, Direction
-
-
-UI_SCALE: float = 1.0
-TILE_SIZE: int = 48
 
 
 class TextureType(Enum):
@@ -35,6 +27,9 @@ class Texture:
     """
     A texture which can be loaded from a file and rendered on a surface.
     """
+    UIScale = 1.0
+    TileSize = 48
+
     def __init__(self, path: str, texture_type: TextureType, animated: bool = False, animation_duration: float = 1.0, frame_count: int = 1, loop_animation: bool = False) -> None:
         """
         :param path: The path of the image to load.
@@ -63,15 +58,13 @@ class Texture:
         if self.texture_type == TextureType.UI:
             original = transform.scale(
                 original,
-                (int(original.get_width() * UI_SCALE), int(original.get_height() * UI_SCALE))
+                (int(original.get_width() * Texture.UIScale), int(original.get_height() * Texture.UIScale))
             )
         elif self.texture_type == TextureType.TILE:
             original = transform.scale(
                 original,
-                (TILE_SIZE, int(original.get_height() / original.get_width() * TILE_SIZE))
+                (Texture.TileSize, int(original.get_height() / original.get_width() * Texture.TileSize))
             )
-        else:
-            print("not working")
 
         self.surfaces = {Direction(i): transform.rotate(original, -90 * i) for i in range(4)}
 
