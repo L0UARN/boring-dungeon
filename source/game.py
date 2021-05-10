@@ -12,6 +12,7 @@ from source.core.tools import Position, Direction
 from source.room import Room, RoomLayer
 from source.menu import MenuLayer
 from source.core.texture import Texture
+from source.resources import TEXTURES
 
 
 class Game(LayerManager):
@@ -28,6 +29,7 @@ class Game(LayerManager):
 
         Texture.UIScale = self.window.get_width() / 1920
         Texture.TileSize = self.window.get_width() // 40
+        TEXTURES.load("resources/textures.json")
 
         self.generation_rng: Random = None
         self.seed: str = None
