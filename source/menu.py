@@ -19,6 +19,7 @@ class MenuLayer(Layer):
     def __init__(self, width: int, height: int):
         super().__init__(False, width, height)
         self.background = T.get("menu_background")
+        print("background", self.background.get_width())
 
         self.title = TextComponent("resources/font.ttf", 64, (255, 255, 255), Position(0, 0), width, int(height * 0.20), True, 8.0)
         self.title.set_text(["BORING DUNGEON"])
@@ -36,6 +37,8 @@ class MenuLayer(Layer):
 
         :param events: A list of the lastly pulled events.
         """
+        super().update(events)
+
         self.title.update(events)
         self.input_hint.update(events)
         self.input.update(events)
@@ -52,6 +55,7 @@ class MenuLayer(Layer):
 
         :param surface: The surface on which the menu will be rendered.
         """
+        super().render(surface)
         self.background.render(surface, Position(0, 0))
         self.title.render(surface)
         self.input_hint.render(surface)

@@ -19,9 +19,8 @@ from pygame import Surface, image, transform, Rect, display
 from source.core.tools import Position, Direction
 
 
-display.init()
-UI_SCALE: float = display.Info().current_w // 1920
-TILE_SIZE: int = display.Info().current_w // 40
+UI_SCALE: float = 1.0
+TILE_SIZE: int = 48
 
 
 class TextureType(Enum):
@@ -71,6 +70,8 @@ class Texture:
                 original,
                 (TILE_SIZE, int(original.get_height() / original.get_width() * TILE_SIZE))
             )
+        else:
+            print("not working")
 
         self.surfaces = {Direction(i): transform.rotate(original, -90 * i) for i in range(4)}
 

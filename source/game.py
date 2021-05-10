@@ -3,14 +3,16 @@ Classes:
     - Game
 """
 
-import pygame as pg
 from random import Random, choice
+import pygame as pg
 from source.core.layer import LayerManager
 from source.player import Player
 from source.level import Level, LevelLayer
 from source.core.tools import Position, Direction
 from source.room import Room, RoomLayer
 from source.menu import MenuLayer
+from source.resources import TEXTURES as T
+from source.core.texture import TILE_SIZE, UI_SCALE
 
 
 class Game(LayerManager):
@@ -24,6 +26,12 @@ class Game(LayerManager):
         self.window = pg.display.set_mode((0, 0), pg.FULLSCREEN)
         pg.display.set_caption("Boring Dungeon")
         pg.display.set_icon(pg.transform.scale(pg.image.load("resources/icon.png"), (64, 64)))
+
+        TILE_SIZE = self.window.get_width() / 40
+        UI_SCALE = self.window.get_width() / 1920
+        print(self.window.get_width(), self.window.get_height())
+        print(TILE_SIZE, UI_SCALE)
+        T.load("resources/textures.json")
 
         self.generation_rng: Random = None
         self.seed: str = None

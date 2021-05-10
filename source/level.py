@@ -14,9 +14,9 @@ from source.core.texture import TILE_SIZE
 from source.resources import TEXTURES as T
 from source.core.layer import Layer
 from source.player import Player, PlayerComponent
-from ui.halo import HaloComponent
-from ui.box import BoxComponent
-from ui.text import TextComponent
+from source.ui.halo import HaloComponent
+from source.ui.box import BoxComponent
+from source.ui.text import TextComponent
 
 
 class Level:
@@ -157,6 +157,7 @@ class LevelComponent(Component):
         self.stairs_texture = T.get("stairs")
         self.floor_texture = T.get("floor")
         self.brick_texture = T.get("brick")
+        print("brick", self.brick_texture.get_width())
 
     def update(self, events: list[event.Event]) -> None:
         """ Updates the level with the latest events.

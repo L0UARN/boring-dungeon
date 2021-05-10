@@ -5,7 +5,7 @@ Classes:
 
 from pygame import Surface, event, draw, Rect
 from pygame.font import Font
-from external.text_input import TextInput
+from source.external.text_input import TextInput
 from source.core.component import Component
 from source.core.tools import Position
 
