@@ -125,6 +125,12 @@ class LayerManager:
         """
         return self.order[0]
 
+    def unfocus(self) -> None:
+        """
+        Remove the focus from the current layer, and give the focus to the layer beneath it.
+        """
+        self.order = self.order + [self.order.pop(0)]
+
     def update(self, events: list[event.Event]) -> None:
         """ Updates the layer in focus.
 
