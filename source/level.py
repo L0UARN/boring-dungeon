@@ -92,6 +92,10 @@ class Level:
         """
         Chooses rooms positions inside of the level's maze.
         """
+        amount = self.difficulty
+        if len(self.graph) <= self.difficulty:
+            amount = len(self.graph) // 2
+
         best_positions: list[Position] = []
         possible_positions: list[Position] = []
 
@@ -104,18 +108,18 @@ class Level:
                 possible_positions.append(position)
 
         if not best_positions:
-            if len(possible_positions) > self.difficulty:
-                self.rooms = self.rng.sample(possible_positions, self.difficulty)
+            if len(possible_positions) > amount:
+                self.rooms = self.rng.sample(possible_positions, amount)
             else:
                 self.rooms = possible_positions
-        elif len(best_positions) < self.difficulty:
-            if len(best_positions) + len(possible_positions) > self.difficulty:
-                self.rooms = best_positions + self.rng.sample(possible_positions, self.difficulty - len(best_positions))
+        elif len(best_positions) < amount:
+            if len(best_positions) + len(possible_positions) > amount:
+                self.rooms = best_positions + self.rng.sample(possible_positions, amount - len(best_positions))
             else:
                 self.rooms = best_positions + possible_positions
-        elif len(best_positions) > self.difficulty:
-            self.rooms = self.rng.sample(best_positions, self.difficulty)
-        else:  # len(best_positions) == self.difficulty
+        elif len(best_positions) > amount:
+            self.rooms = self.rng.sample(best_positions, amount)
+        else:  # len(best_positions) == amount
             self.rooms = best_positions
 
     def _generate_stairs(self) -> None:
@@ -135,6 +139,8 @@ class Level:
             self.stairs = self.rng.sample(dead_ends, 2)
         else:
             self.stairs = [self.rng.choice(list(self.graph.keys())[1:])]
+            if self.stairs[0] in self.rooms:
+                self.rooms.remove(self.stairs[0])
 
 
 class LevelComponent(Component):
