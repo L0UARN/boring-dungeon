@@ -15,7 +15,7 @@ from enum import Enum
 from time import time
 from math import floor
 from copy import copy
-from pygame import Surface, image, transform, Rect, display
+from pygame import Surface, image, transform, Rect
 from source.core.tools import Position, Direction
 
 

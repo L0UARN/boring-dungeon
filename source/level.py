@@ -157,7 +157,6 @@ class LevelComponent(Component):
         self.stairs_texture = T.get("stairs")
         self.floor_texture = T.get("floor")
         self.brick_texture = T.get("brick")
-        print("brick", self.brick_texture.get_width())
 
     def update(self, events: list[event.Event]) -> None:
         """ Updates the level with the latest events.

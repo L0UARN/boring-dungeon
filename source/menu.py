@@ -19,7 +19,6 @@ class MenuLayer(Layer):
     def __init__(self, width: int, height: int):
         super().__init__(False, width, height)
         self.background = T.get("menu_background")
-        print("background", self.background.get_width())
 
         self.title = TextComponent("resources/font.ttf", 64, (255, 255, 255), Position(0, 0), width, int(height * 0.20), True, 8.0)
         self.title.set_text(["BORING DUNGEON"])
