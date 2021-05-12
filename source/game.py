@@ -121,7 +121,7 @@ class Game(LayerManager):
         direction_to_pos_doors = {self.rooms[self.current_room].doors[p]: p for p in self.rooms[self.current_room].doors}
         self.player.position = direction_to_pos_doors[self.player.direction.opposite()].next_in_direction(self.player.direction)
         self.player.graph = self.rooms[self.current_room].graph
-        self.level_layer.player_display.last_moved = time() + 0.2
+        self.room_layer.player_display.last_moved = time() + 0.2
 
         self.room_layer.info_text.set_text([
             f"Level: {self.level.difficulty}",
