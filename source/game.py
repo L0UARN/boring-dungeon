@@ -14,6 +14,8 @@ from source.room import Room, RoomLayer
 from source.menu import MenuLayer
 from source.core.texture import Texture
 from source.resources import TEXTURES
+from source.inventory import InventoryLayer, Inventory
+from source.item import Weapon
 
 
 class Game(LayerManager):
@@ -40,6 +42,7 @@ class Game(LayerManager):
         self.current_room: Position = None
         self.rooms: dict[Position, Room] = None
         self.room_layer: RoomLayer = None
+        self.inventory_layer: InventoryLayer = None
 
         self.menu_layer = MenuLayer(self.window.get_width(), self.window.get_height())
 
@@ -83,10 +86,21 @@ class Game(LayerManager):
         self.current_room = list(self.rooms.keys())[0]
         self.room_layer = RoomLayer(list(self.rooms.values())[0], self.player, self.window.get_width(), self.window.get_height())
 
+        inventory = Inventory()
+        inventory.add_item(Weapon("sword", 1, 3))
+        self.player.inventory = inventory
+
+        self.inventory_layer = InventoryLayer(self.player.inventory, self.window.get_width(), self.window.get_height())
+
         self.level_layer.info_text.set_text([
             f"Level: {self.level.difficulty}",
             f"Seed: {self.seed}"
         ])
+
+        self.add_layer("level", self.level_layer)
+        self.add_layer("room", self.room_layer)
+        self.add_layer("inventory", self.inventory_layer)
+        self.set_focus("level")
 
     def _level_down(self) -> None:
         """
@@ -129,6 +143,8 @@ class Game(LayerManager):
             f"Seed: {self.seed}"
         ])
 
+        self.set_focus("room")
+
     def _exit_room(self) -> None:
         """
         Exit a room to go back to the level exploring part of the game.
@@ -142,6 +158,8 @@ class Game(LayerManager):
             f"Seed: {self.seed}"
         ])
 
+        self.set_focus("level")
+
     def update(self, events: list[pg.event.Event]) -> None:
         """ Updates the game.
 
@@ -154,17 +172,18 @@ class Game(LayerManager):
                 self._initial_load()
                 self.menu_layer.button.is_clicked = False
                 self.menu_layer.input.clear_text()
-                self.add_layer("level", self.level_layer)
-                self.add_layer("room", self.room_layer)
-                self.set_focus("level")
         elif self.get_focus() == "level":
             if self.player.position in self.level.stairs:
                 self._level_down()
             elif self.player.position in self.level.rooms:
                 self._enter_room(self.player.position)
-                self.set_focus("room")
         elif self.get_focus() == "room":
             if self.player.position in self.rooms[self.current_room].doors:
                 self._exit_room()
-                self.set_focus("level")
 
+        for event in events:
+            if event.type == pg.KEYDOWN:
+                if (event.key == pg.K_e or event.key == pg.K_i) and (self.get_focus() == "level" or self.get_focus() == "room"):
+                    self.set_focus("inventory")
+                elif (event.key == pg.K_ESCAPE or event.key == pg.K_e or event.key == pg.K_i) and self.get_focus() == "inventory":
+                    self.unfocus()

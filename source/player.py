@@ -6,7 +6,7 @@ Classes:
 
 from time import time
 import pygame as pg
-from source.traits.living import Living
+from source.traits.fighter import Fighter
 from source.traits.mobile import Mobile
 from source.traits.effect import Affectible
 from source.core.tools import Position, Direction
@@ -14,7 +14,7 @@ from source.core.component import Component
 from source.resources import TEXTURES as T
 
 
-class Player(Living, Mobile, Affectible):
+class Player(Fighter, Mobile, Affectible):
     """
     The representation of the player in the game.
     """
@@ -25,7 +25,7 @@ class Player(Living, Mobile, Affectible):
         :param direction: The initial direction of the player.
         :param graph: The graph on which the player will move.
         """
-        Living.__init__(self, max_health)
+        Fighter.__init__(self, max_health)
         Mobile.__init__(self, position, direction, graph)
         Affectible.__init__(self)
 

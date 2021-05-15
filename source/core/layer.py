@@ -31,6 +31,7 @@ class Layer:
             self.surface.fill((0, 0, 0))
 
         self.components: dict[str, Component] = {}
+        self.locked: list[str] = []
 
     def add_component(self, name: str, component: Component) -> None:
         """ Adds a component on the layer.
@@ -54,13 +55,36 @@ class Layer:
         """
         self.components.pop(name)
 
+    def lock_component(self, name: str) -> None:
+        """ Block a component from rendering and updating.
+
+        :param name: The name of the component to lock.
+        """
+        self.locked.append(name)
+
+    def is_locked(self, name: str) -> bool:
+        """ Get if a component is locked.
+
+        :param name: The name of the component.
+        :return: True if the component is locked, False if not.
+        """
+        return name in self.locked
+
+    def unlock_component(self, name: str) -> None:
+        """ Re-allow a component to render and update.
+
+        :param name: The name of the component to unlock.
+        """
+        self.locked.remove(name)
+
     def update(self, events: list[event.Event]) -> None:
         """ Updates the components of the layer.
 
         :param events: The list of events lastly pulled.
         """
         for name in self.components:
-            self.components[name].update(events)
+            if name not in self.locked:
+                self.components[name].update(events)
 
     def render(self, surface: Surface) -> None:
         """ Renders the components to a surface.
@@ -73,7 +97,8 @@ class Layer:
             self.surface.fill((0, 0, 0))
 
         for name in self.components:
-            self.components[name].render(self.surface)
+            if name not in self.locked:
+                self.components[name].render(self.surface)
 
         surface.blit(self.surface, (0, 0))
 

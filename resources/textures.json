@@ -54,5 +54,29 @@
     "menu_background": {
         "type": "ui",
         "path": "resources/menu_background.png"
+    },
+    "inventory_misc": {
+        "type": "ui",
+        "path": "resources/inventory_misc.png"
+    },
+    "inventory_equipped": {
+        "type": "ui",
+        "path": "resources/inventory_equipped.png"
+    },
+    "empty_item": {
+        "type": "ui",
+        "path": "resources/empty_item.png"
+    },
+    "empty_armor_item": {
+        "type": "ui",
+        "path": "resources/empty_armor_item.png"
+    },
+    "empty_weapon_item": {
+        "type": "ui",
+        "path": "resources/empty_weapon_item.png"
+    },
+    "sword_item": {
+        "type": "ui",
+        "path": "resources/sword_item.png"
     }
 }

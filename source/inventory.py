@@ -5,7 +5,16 @@ Classes:
     - InventoryLayer
 """
 
-from source.item import Item, Weapon, Armor, ArmorSlot
+from pygame import Surface, event, draw, Rect, MOUSEBUTTONDOWN, mouse, MOUSEMOTION
+from source.item import Item, Weapon, Armor, ArmorSlot, ItemComponent
+from source.core.component import Component
+from source.core.tools import Position
+from source.resources import TEXTURES as T
+from source.core.layer import Layer
+from source.ui.darkener import DarkenerComponent
+from source.core.texture import Texture
+from source.ui.box import BoxComponent
+from source.ui.text import TextComponent
 
 
 class Inventory:
@@ -114,6 +123,8 @@ class Inventory:
             if self.armor[slot] is not None:
                 total += self.armor[slot].protection
 
+        return total
+
     def get_equipped_weight(self) -> int:
         """ Get the total weight of the equipped gear.
 
@@ -125,4 +136,223 @@ class Inventory:
         for slot in ArmorSlot:
             if self.armor[slot] is not None:
                 total += self.armor[slot].weight
+
         return total
+
+
+class InventoryComponent(Component):
+    """
+    Used to display an inventory.
+    """
+    def __init__(self, inventory: Inventory, render_position: Position) -> None:
+        """
+        :param inventory: The inventory that will be displayed.
+        :param render_position: The position at which to render the inventory.
+        """
+        self.misc_texture = T.get("inventory_misc")
+        self.equipped_texture = T.get("inventory_equipped")
+
+        super().__init__(render_position, self.misc_texture.get_width() + self.equipped_texture.get_width(), self.misc_texture.get_height())
+
+        self.inventory = inventory
+
+        self.misc_components = [ItemComponent(Item("empty", 0), Position(0, 0)) for i in range(len(self.inventory.misc))]
+        self.armor_components = [ItemComponent(Item("empty", 0), Position(0, 0)) for i in range(len(ArmorSlot))]
+        self.weapon_component = ItemComponent(Item("empty", 0), Position(0, 0))
+
+    def update(self, events: list[event.Event]) -> None:
+        """ Updates the inventory and manage the mouse interaction.
+
+        :param events: A list of the lastly pulled events.
+        """
+        self.misc_components = [
+            ItemComponent(
+                self.inventory.misc[i] if self.inventory.misc[i] is not None else Item("empty", 0),
+                Position(
+                    self.render_position.x + (64 + 96) * Texture.UIScale * (i % 4) + 32,
+                    self.render_position.y + (64 + 96) * Texture.UIScale * (i // 4) + 32
+                )
+            )
+            for i in range(len(self.inventory.misc))
+        ]
+
+        self.armor_components = [
+            ItemComponent(
+                self.inventory.armor[ArmorSlot(i)] if self.inventory.armor[ArmorSlot(i)] is not None else Armor("empty_armor", 0, 0, ArmorSlot(i)),
+                Position(
+                    self.render_position.x + self.misc_texture.get_width() + (32 * Texture.UIScale),
+                    self.render_position.y + (8 + 96) * Texture.UIScale * i + 8
+                )
+            )
+            for i in range(len(ArmorSlot))
+        ]
+
+        self.weapon_component = ItemComponent(
+            self.inventory.weapon if self.inventory.weapon is not None else Weapon("empty_weapon", 0, 0),
+            Position(
+                self.render_position.x + self.misc_texture.get_width() + 192 * Texture.UIScale,
+                self.render_position.y + 112 * Texture.UIScale
+            )
+        )
+
+        for e in events:
+            if e.type == MOUSEBUTTONDOWN:
+                position = Position(mouse.get_pos()[0], mouse.get_pos()[1])
+
+                if e.button == 1:  # left click
+                    for i in range(len(self.misc_components)):
+                        if self.misc_components[i].render_position.x <= position.x <= self.misc_components[i].render_position.x + 96 * Texture.UIScale and \
+                           self.misc_components[i].render_position.y <= position.y <= self.misc_components[i].render_position.y + 96 * Texture.UIScale:
+                            if isinstance(self.misc_components[i].item, Armor):
+                                self.inventory.set_armor(self.misc_components[i].item, True)
+                                self.inventory.remove_item(i)
+                            elif isinstance(self.misc_components[i].item, Weapon):
+                                self.inventory.set_weapon(self.misc_components[i].item, True)
+                                self.inventory.remove_item(i)
+                            break
+
+                    for item in self.armor_components:
+                        if item.render_position.x <= position.x <= item.render_position.x + 96 * Texture.UIScale and \
+                           item.render_position.y <= position.y <= item.render_position.y + 96 * Texture.UIScale:
+                            self.inventory.store_armor(item.item.slot)
+                            break
+
+                    if self.weapon_component.render_position.x <= position.x <= self.weapon_component.render_position.x + 96 * Texture.UIScale and \
+                       self.weapon_component.render_position.y <= position.y <= self.weapon_component.render_position.y + 96 * Texture.UIScale:
+                        self.inventory.store_weapon()
+
+                elif e.button == 3:  # right click
+                    for i in range(len(self.misc_components)):
+                        if self.misc_components[i].render_position.x <= position.x <= self.misc_components[i].render_position.x + 96 * Texture.UIScale and \
+                           self.misc_components[i].render_position.y <= position.y <= self.misc_components[i].render_position.y + 96 * Texture.UIScale:
+                            self.inventory.remove_item(i)
+
+    def render(self, surface: Surface) -> None:
+        """ Renders the inventory to the screen.
+
+        :param surface: The surface on which the inventory will be rendered.
+        """
+
+        self.misc_texture.render(surface, self.render_position)
+        self.equipped_texture.render(surface, Position(self.render_position.x + self.misc_texture.get_width(), self.render_position.y))
+
+        for item in self.misc_components:
+            item.render(surface)
+        for armor in self.armor_components:
+            armor.render(surface)
+        self.weapon_component.render(surface)
+
+
+class InventoryLayer(Layer):
+    """
+    The layer used to display the inventory.
+    """
+    def __init__(self, inventory: Inventory, width: int, height: int) -> None:
+        """
+        :param inventory: The inventory which will be rendered.
+        :param width: The width of the screen.
+        :param height: The height of the screen.
+        """
+        super().__init__(True, width, height)
+        self.inventory_display = InventoryComponent(inventory, Position(0, 0))
+        self.inventory_display.render_position = Position((width - self.inventory_display.render_width) // 2, (height - self.inventory_display.render_height) // 2)
+        self.darkener = DarkenerComponent(Position(0, 0), self.width, self.height)
+        self.hint_box = BoxComponent(Position(0, 0), 384, 256)
+        self.hint_text = TextComponent("resources/font.ttf", 24, (0, 0, 0), Position(0, 0), 384, 256)
+
+        self.add_component("darkener", self.darkener)
+        self.add_component("inventory", self.inventory_display)
+        self.add_component("hint_box", self.hint_box)
+        self.add_component("hint_text", self.hint_text)
+        self.lock_component("hint_box")
+        self.lock_component("hint_text")
+
+    def update(self, events: list[event.Event]) -> None:
+        """ Updates the inventory layer.
+
+        :param events: A list of the lastly pulled events.
+        """
+        super().update(events)
+
+        for e in events:
+            if e.type == MOUSEMOTION:
+                mouse_position = Position(mouse.get_pos()[0], mouse.get_pos()[1])
+
+                hovered = False
+                for item in self.inventory_display.misc_components:
+                    if item.render_position.x <= mouse_position.x <= item.render_position.x + 96 * Texture.UIScale and \
+                       item.render_position.y <= mouse_position.y <= item.render_position.y + 96 * Texture.UIScale:
+                        lines = [item.item.name, "", f"Weight: {item.item.weight}"]
+                        if isinstance(item.item, Weapon):
+                            lines.append(f"Damage: {item.item.damage}")
+                        elif isinstance(item.item, Armor):
+                            lines.append(f"Protection: {item.item.protection}")
+                        self.hint_text.set_text(lines)
+
+                        self.hint_box.render_position = mouse_position
+                        self.hint_text.render_position = mouse_position
+
+                        if self.is_locked("hint_box"):
+                            self.unlock_component("hint_box")
+                        if self.is_locked("hint_text"):
+                            self.unlock_component("hint_text")
+
+                        hovered = True
+                        break
+
+                for item in self.inventory_display.armor_components:
+                    if item.render_position.x <= mouse_position.x <= item.render_position.x + 96 * Texture.UIScale and \
+                       item.render_position.y <= mouse_position.y <= item.render_position.y + 96 * Texture.UIScale:
+                        lines = [
+                            item.item.name,
+                            "",
+                            f"Weight: {item.item.weight}",
+                            f"Protection: {item.item.protection}",
+                            f"Slot: {item.item.slot}"
+                        ]
+                        self.hint_text.set_text(lines)
+
+                        self.hint_box.render_position = mouse_position
+                        self.hint_text.render_position = mouse_position
+
+                        if self.is_locked("hint_box"):
+                            self.unlock_component("hint_box")
+                        if self.is_locked("hint_text"):
+                            self.unlock_component("hint_text")
+
+                        hovered = True
+                        break
+
+                if self.inventory_display.weapon_component.render_position.x <= mouse_position.x <= self.inventory_display.weapon_component.render_position.x + 96 * Texture.UIScale and \
+                   self.inventory_display.weapon_component.render_position.y <= mouse_position.y <= self.inventory_display.weapon_component.render_position.y + 96 * Texture.UIScale:
+                    lines = [
+                        self.inventory_display.weapon_component.item.name,
+                        "",
+                        f"Weight: {self.inventory_display.weapon_component.item.weight}",
+                        f"Damage: {self.inventory_display.weapon_component.item.damage}"
+                    ]
+
+                    self.hint_text.set_text(lines)
+
+                    self.hint_box.render_position = mouse_position
+                    self.hint_text.render_position = mouse_position
+
+                    if self.is_locked("hint_box"):
+                        self.unlock_component("hint_box")
+                    if self.is_locked("hint_text"):
+                        self.unlock_component("hint_text")
+
+                    hovered = True
+
+                if not hovered:
+                    if not self.is_locked("hint_box"):
+                        self.lock_component("hint_box")
+                    if not self.is_locked("hint_text"):
+                        self.lock_component("hint_text")
+
+    def render(self, surface: Surface) -> None:
+        """ Renders the inventory layer.
+
+        :param surface: The surface on which the inventory layer will be rendered.
+        """
+        super().render(surface)

@@ -12,13 +12,19 @@ from pygame import Surface, event
 from source.core.component import Component
 from source.core.tools import Position
 from source.core.texture import Texture
+from source.resources import TEXTURES as T
 
 
 class Item:
     """
     An item which can be held in an entity's inventory.
     """
-    def __init__(self, weight: int) -> None:
+    def __init__(self, name: str, weight: int) -> None:
+        """
+        :param name: The name of the item.
+        :param weight: The weight of the item.
+        """
+        self.name = name
         self.weight = weight
 
 
@@ -26,10 +32,14 @@ class ItemComponent(Component):
     """
     Used to display an item.
     """
-    def __init__(self, item: Item, texture: Texture, render_position: Position) -> None:
-        super().__init__(render_position, texture.get_width(), texture.get_height())
+    def __init__(self, item: Item, render_position: Position) -> None:
+        """
+        :param item: The item which will be rendered.
+        :param render_position: The position of the item on the surface.
+        """
+        self.texture = T.get(f"{item.name}_item")
+        super().__init__(render_position, self.texture.get_width(), self.texture.get_height())
         self.item = item
-        self.texture = texture
 
     def update(self, events: list[event.Event]) -> None:
         """ Updates the item.
@@ -50,8 +60,8 @@ class Weapon(Item):
     """
     A weapon item.
     """
-    def __init__(self, weight: int, damage: int) -> None:
-        super().__init__(weight)
+    def __init__(self, name: str, weight: int, damage: int) -> None:
+        super().__init__(name, weight)
         self.damage = damage
 
 
@@ -59,16 +69,27 @@ class ArmorSlot(Enum):
     """
     Represents a slot inside an entity's inventory.
     """
-    HEAD = 1
-    CHEST = 2
-    LEGS = 3
+    HEAD = 0
+    CHEST = 1
+    LEGS = 2
+
+    def __str__(self) -> str:
+        if self == ArmorSlot.HEAD:
+            return "Head"
+        elif self == ArmorSlot.CHEST:
+            return "Chest"
+        elif self == ArmorSlot.LEGS:
+            return "Legs"
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
 
 class Armor(Item):
     """
     An armor item.
     """
-    def __init__(self, weight: int, protection: int, slot: ArmorSlot) -> None:
-        super().__init__(weight)
+    def __init__(self, name: str, weight: int, protection: int, slot: ArmorSlot) -> None:
+        super().__init__(name, weight)
         self.protection = protection
         self.slot = slot
