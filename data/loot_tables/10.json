@@ -1,0 +1,11 @@
+{
+    "items": {
+        "dagger": 0.05,
+        "boots": 0.10,
+        "sword": 0.10,
+        "helmet": 0.10,
+        "axe": 0.15,
+        "plate": 0.10
+    },
+    "amount": 1
+}

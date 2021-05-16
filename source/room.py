@@ -16,13 +16,15 @@ from source.player import Player, PlayerComponent
 from source.ui.halo import HaloComponent
 from source.ui.box import BoxComponent
 from source.ui.text import TextComponent
+from source.loot import LootTable
+from source.item import Item
 
 
 class Room:
     """
     Rooms are placed inside of levels, they contain items to loot and enemies to fight.
     """
-    def __init__(self, difficulty: int, rng: Random, openings: list[Direction]) -> None:
+    def __init__(self, difficulty: int, rng: Random, loot_table: LootTable, openings: list[Direction]) -> None:
         """
         :param difficulty: How complex and big the room is.
         :param rng: The random number generator used the generation process.
@@ -36,6 +38,8 @@ class Room:
 
         self.openings = openings
         self.doors: dict[Position, Direction] = {}
+        self.loot_table = loot_table
+        self.items: dict[Position, Item] = {}
 
         self.generate()
 
@@ -45,6 +49,7 @@ class Room:
         """
         self._generate_room()
         self._generate_doors()
+        self._generate_items()
 
     def _generate_room(self) -> None:
         """
@@ -94,6 +99,19 @@ class Room:
             self.graph[position] = [position.next_in_direction(opening.opposite())]
             self.graph[position.next_in_direction(opening.opposite())].append(position)
 
+    def _generate_items(self) -> None:
+        """
+        Generates the items in the room, based on the provided loot table.
+        """
+        items = self.loot_table.get_items()
+
+        available_spots = list(self.graph.keys())
+        for door in self.doors:
+            available_spots.remove(door)
+        spots = self.rng.sample(available_spots, len(items))
+
+        self.items = {spots[i]: items[i] for i in range(len(items)) if items[i] is not None}
+
 
 class RoomComponent(Component):
     """
@@ -114,6 +132,7 @@ class RoomComponent(Component):
         self.door_texture = T.get("door")
         self.floor_texture = T.get("floor")
         self.brick_texture = T.get("brick")
+        self.item_texture = T.get("item")
 
     def update(self, events: list[event.Event]) -> None:
         """ Updates the room with the latest events.
@@ -145,6 +164,8 @@ class RoomComponent(Component):
                         Position(offset_x, offset_y),
                         Position(x, y).direction(self.room.graph[Position(x, y)][0])
                     )
+                elif Position(x, y) in self.room.items:
+                    self.item_texture.render(surface, Position(offset_x, offset_y))
                 elif Position(x, y) in self.room.graph:
                     self.floor_texture.render(surface, Position(offset_x, offset_y))
                 else:
@@ -169,6 +190,7 @@ class RoomLayer(Layer):
         super().__init__(False, width, height)
         self.room_display = RoomComponent(room, list(room.graph.keys())[0], Position(0, 0), width, height)
         self.player_display = PlayerComponent(player, Position((width - Texture.TileSize) // 2, (height - Texture.TileSize) // 2), Texture.TileSize, Texture.TileSize)
+        self.item_displays = []
         self.halo_effect = HaloComponent(Position(0, 0), width, height)
         self.info_box = BoxComponent(Position(0, int(height * 0.75)), width, int(height * 0.25))
         self.info_text = TextComponent("resources/font.ttf", 32, (0, 0, 0), Position(0, int(height * 0.75)), width, int(height * 0.25), True, 16.0)
@@ -185,6 +207,10 @@ class RoomLayer(Layer):
         self.halo_effect.update(events)
         self.info_box.update(events)
         self.info_text.update(events)
+
+        if self.player_display.player.position in self.room_display.room.items:
+            if self.player_display.player.inventory.add_item(self.room_display.room.items[self.player_display.player.position]) != -1:
+                self.room_display.room.items.pop(self.player_display.player.position)
 
     def render(self, surface: Surface) -> None:
         """ Renders the layer to the specified surface.

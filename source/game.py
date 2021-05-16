@@ -5,6 +5,7 @@ Classes:
 
 from random import Random, choice
 from time import time
+from os import listdir
 import pygame as pg
 from source.core.layer import LayerManager
 from source.player import Player
@@ -16,6 +17,7 @@ from source.core.texture import Texture
 from source.resources import TEXTURES
 from source.inventory import InventoryLayer, Inventory
 from source.item import Weapon
+from source.loot import ITEMS, LootTable
 
 
 class Game(LayerManager):
@@ -72,17 +74,20 @@ class Game(LayerManager):
         """
         self.generation_rng = Random()
         if self.menu_layer.input.get_text() == "":
-            file = open("resources/seeds.txt", "r")
+            file = open("data/seeds.txt", "r")
             self.seed = choice(file.read().split("\n"))
             file.close()
         else:
             self.seed = self.menu_layer.input.get_text()
         self.generation_rng.seed(a=self.seed, version=2)
 
+        ITEMS.load("data/items.json")
+        self.loot_tables = [LootTable(f"data/loot_tables/{file}", self.generation_rng) for file in listdir("data/loot_tables/") if file.split(".")[-1] == "json"]
+
         self.level = Level(1, self.generation_rng)
         self.player = Player(10, list(self.level.graph.keys())[0], Direction.NORTH, self.level.graph)
         self.level_layer = LevelLayer(self.level, self.player, self.window.get_width(), self.window.get_height())
-        self.rooms = {self.level.rooms[i]: Room(1, self.generation_rng, [p.direction(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
+        self.rooms = {self.level.rooms[i]: Room(1, self.generation_rng, self.loot_tables[0], [p.direction(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
         self.current_room = list(self.rooms.keys())[0]
         self.room_layer = RoomLayer(list(self.rooms.values())[0], self.player, self.window.get_width(), self.window.get_height())
 
@@ -112,7 +117,8 @@ class Game(LayerManager):
         self.player.graph = self.level.graph
         self.level_layer.player_display.last_moved = time() + 0.2
 
-        self.rooms = {self.level.rooms[i]: Room(self.level.difficulty, self.generation_rng, [p.direction(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
+        loot_table_index = self.level.difficulty - 1 if self.level.difficulty - 1 < len(self.loot_tables) else -1
+        self.rooms = {self.level.rooms[i]: Room(self.level.difficulty, self.generation_rng, self.loot_tables[loot_table_index], [p.direction(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
         self.current_room = list(self.rooms.keys())[0]
 
         self.level_layer.level_display.level = self.level

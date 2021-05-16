@@ -31,6 +31,14 @@
         "type": "tile",
         "path": "resources/player.png"
     },
+    "item": {
+        "type": "tile",
+        "path": "resources/item.png",
+        "animated": true,
+        "animation_duration": 2.0,
+        "frame_count": 8,
+        "loop_animation": true
+    },
     "halo": {
         "type": "ui",
         "path": "resources/halo.png",
@@ -75,8 +83,44 @@
         "type": "ui",
         "path": "resources/empty_weapon_item.png"
     },
+    "stick_item": {
+        "type": "ui",
+        "path": "resources/stick_item.png"
+    },
+    "dagger_item": {
+        "type": "ui",
+        "path": "resources/dagger_item.png"
+    },
     "sword_item": {
         "type": "ui",
         "path": "resources/sword_item.png"
+    },
+    "axe_item": {
+        "type": "ui",
+        "path": "resources/axe_item.png"
+    },
+    "hat_item": {
+        "type": "ui",
+        "path": "resources/hat_item.png"
+    },
+    "cloak_item": {
+        "type": "ui",
+        "path": "resources/cloak_item.png"
+    },
+    "leather_boots_item": {
+        "type": "ui",
+        "path": "resources/leather_boots_item.png"
+    },
+    "helmet_item": {
+        "type": "ui",
+        "path": "resources/helmet_item.png"
+    },
+    "plate_item": {
+        "type": "ui",
+        "path": "resources/plate_item.png"
+    },
+    "boots_item": {
+        "type": "ui",
+        "path": "resources/boots_item.png"
     }
 }

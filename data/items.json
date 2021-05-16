@@ -1,0 +1,58 @@
+{
+    "stick": {
+        "type": "weapon",
+        "weight": 1,
+        "damage": 2
+    },
+    "dagger": {
+        "type": "weapon",
+        "weight": 1,
+        "damage": 4
+    },
+    "sword": {
+        "type": "weapon",
+        "weight": 2,
+        "damage": 8
+    },
+    "axe": {
+        "type": "weapon",
+        "weight": 3,
+        "damage": 12
+    },
+    "hat": {
+        "type": "armor",
+        "weight": 1,
+        "protection": 1,
+        "slot": 0
+    },
+    "cloak": {
+        "type": "armor",
+        "weight": 1,
+        "protection": 1,
+        "slot": 1
+    },
+    "leather_boots": {
+        "type": "armor",
+        "weight": 1,
+        "protection": 1,
+        "slot": 2
+    },
+    "helmet": {
+        "type": "armor",
+        "weight": 2,
+        "protection": 2,
+        "slot": 0
+    },
+    "plate": {
+        "type": "armor",
+        "weight": 3,
+        "protection": 4,
+        "slot": 1
+    },
+    "boots": {
+        "type": "armor",
+        "weight": 2,
+        "protection": 2,
+        "slot": 2
+    }
+}
