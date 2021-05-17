@@ -223,16 +223,22 @@ class RoomLayer(Layer):
         self.room_display.update(events)
         self.player_display.update(events)
 
-        for enemy in self.enemy_displays:
-            enemy.update(events)
+        for i in range(len(self.enemy_displays)):
+            self.enemy_displays[i].update(events)
 
-            if enemy.enemy.direction == self.player_display.player.position.direction_of(enemy.enemy.position) and \
-               enemy.enemy.position.distance(self.player_display.player.position) <= 4 and \
-               enemy.enemy.has_path(self.player_display.player.position):
+            if self.enemy_displays[i].enemy.direction == self.player_display.player.position.direction_of(self.enemy_displays[i].enemy.position) and \
+               self.enemy_displays[i].enemy.position.distance(self.player_display.player.position) <= 3 and \
+               self.enemy_displays[i].enemy.has_path(self.player_display.player.position):
                 self.player_display.movement_locked = True
-                enemy.enemy_texture = T.get("enemy_aggro")
-                enemy.enemy.has_target = True
-                enemy.enemy.destination = self.player_display.player.position
+                self.enemy_displays[i].enemy_texture = T.get("enemy_aggro")
+                self.enemy_displays[i].enemy.has_target = True
+                self.enemy_displays[i].enemy.destination = self.player_display.player.position
+
+                for j in range(len(self.enemy_displays)):
+                    if j != i:
+                        self.enemy_displays[j].enemy.ai_locked = True
+
+                break
 
         self.room_display.center = self.player_display.player.position
         self.halo_effect.update(events)

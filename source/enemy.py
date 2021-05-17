@@ -38,11 +38,15 @@ class Enemy(Fighter, Mobile, Affectible):
         self.last_break_update = time()
         self.break_start = 0
         self.has_target = False
+        self.ai_locked = False
 
     def update_ai(self) -> None:
         """
         Updates the enemy's behavior.
         """
+        if self.ai_locked:
+            return
+
         if self.has_target:
             if time() - self.last_moved >= 0.25:
                 self.move_towards(self.destination)
