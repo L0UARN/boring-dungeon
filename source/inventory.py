@@ -169,8 +169,8 @@ class InventoryComponent(Component):
             ItemComponent(
                 self.inventory.misc[i] if self.inventory.misc[i] is not None else Item("empty", 0),
                 Position(
-                    self.render_position.x + (64 + 96) * Texture.UIScale * (i % 4) + 32,
-                    self.render_position.y + (64 + 96) * Texture.UIScale * (i // 4) + 32
+                    self.render_position.x + (64 + 96) * Texture.UIScale * (i % 4) + 32 * Texture.UIScale,
+                    self.render_position.y + (64 + 96) * Texture.UIScale * (i // 4) + 32 * Texture.UIScale
                 )
             )
             for i in range(len(self.inventory.misc))
@@ -181,7 +181,7 @@ class InventoryComponent(Component):
                 self.inventory.armor[ArmorSlot(i)] if self.inventory.armor[ArmorSlot(i)] is not None else Armor("empty_armor", 0, 0, ArmorSlot(i)),
                 Position(
                     self.render_position.x + self.misc_texture.get_width() + (32 * Texture.UIScale),
-                    self.render_position.y + (8 + 96) * Texture.UIScale * i + 8
+                    self.render_position.y + (8 + 96) * Texture.UIScale * i + 8 * Texture.UIScale
                 )
             )
             for i in range(len(ArmorSlot))

@@ -85,7 +85,7 @@ class Game(LayerManager):
         self.ai_rng.seed(a=self.seed, version=2)
 
         ITEMS.load("data/items.json")
-        self.loot_tables = [LootTable(f"data/loot_tables/{file}", self.generation_rng) for file in listdir("data/loot_tables/") if file.split(".")[-1] == "json"]
+        self.loot_tables = [LootTable(f"data/loot_tables/{file}", self.generation_rng) for file in sorted(listdir("data/loot_tables/")) if file.split(".")[-1] == "json"]
 
         self.level = Level(1, self.generation_rng)
         self.player = Player(10, list(self.level.graph.keys())[0], Direction.NORTH, self.level.graph)
