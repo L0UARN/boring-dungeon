@@ -180,7 +180,7 @@ class RoomComponent(Component):
                     self.door_texture.render(
                         surface,
                         Position(offset_x, offset_y),
-                        Position(x, y).direction(self.room.graph[Position(x, y)][0])
+                        Position(x, y).direction_of(self.room.graph[Position(x, y)][0])
                     )
                 elif Position(x, y) in self.room.items:
                     self.item_texture.render(surface, Position(offset_x, offset_y))
@@ -225,6 +225,14 @@ class RoomLayer(Layer):
 
         for enemy in self.enemy_displays:
             enemy.update(events)
+
+            if enemy.enemy.direction == self.player_display.player.position.direction_of(enemy.enemy.position) and \
+               enemy.enemy.position.distance(self.player_display.player.position) <= 4 and \
+               enemy.enemy.has_path(self.player_display.player.position):
+                self.player_display.movement_locked = True
+                enemy.enemy_texture = T.get("enemy_aggro")
+                enemy.enemy.has_target = True
+                enemy.enemy.destination = self.player_display.player.position
 
         self.room_display.center = self.player_display.player.position
         self.halo_effect.update(events)

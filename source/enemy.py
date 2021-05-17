@@ -37,12 +37,17 @@ class Enemy(Fighter, Mobile, Affectible):
         self.taking_break = False
         self.last_break_update = time()
         self.break_start = 0
+        self.has_target = False
 
     def update_ai(self) -> None:
         """
         Updates the enemy's behavior.
         """
-        if self.taking_break:
+        if self.has_target:
+            if time() - self.last_moved >= 0.25:
+                self.move_towards(self.destination)
+                self.last_moved = time()
+        elif self.taking_break:
             if time() - self.last_break_update >= 0.50:
                 self.direction = self.rng.choice(self.direction.possible_turns())
                 if self.rng.random() < (time() - self.break_start) / 4:

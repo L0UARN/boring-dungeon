@@ -45,6 +45,7 @@ class PlayerComponent(Component):
 
         self.player = player
         self.last_moved = 0
+        self.movement_locked = False
 
         self.player_texture = T.get("player")
 
@@ -53,6 +54,9 @@ class PlayerComponent(Component):
 
         :param events: A list of the lastly pulled events.
         """
+        if self.movement_locked:
+            return
+
         pressed = pg.key.get_pressed()
         if time() - self.last_moved >= 0.20:
             if pressed[pg.K_w] or pressed[pg.K_UP]:

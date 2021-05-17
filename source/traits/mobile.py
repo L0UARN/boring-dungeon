@@ -37,6 +37,34 @@ class Mobile:
             return True
         return False
 
+    def has_path(self, position: Position) -> bool:
+        """ Get if this entity has a free path towards the specified position.
+
+        :param position: The position to which it is needed to determine the path.
+        :return: True if a path is found, False if not.
+        """
+        parents = {self.position: None}
+        opened = [self.position]
+        closed = []
+
+        while opened:
+            temp = opened.pop(0)
+            if temp not in closed:
+                closed.append(temp)
+
+            for neighbor in self.graph[temp]:
+                if neighbor not in opened and neighbor not in closed:
+                    opened.append(neighbor)
+                    parents[neighbor] = temp
+
+        path = []
+        point = position
+        while parents[point] is not None:
+            path = [point] + path
+            point = parents[point]
+
+        return True if path else False
+
     def move_towards(self, position: Position, teleport: bool = False) -> bool:
         """ Calculates a path to the specified position, then moves the entity 1 step towards the position if a valid
         path is found, or teleports the entity to the desired location if teleport is specified and the position is in
@@ -48,7 +76,7 @@ class Mobile:
         """
         if teleport:
             if position in self.graph:
-                self.direction = position.direction(self.position)
+                self.direction = position.direction_of(self.position)
                 self.position = position
                 return True
             else:
@@ -75,7 +103,7 @@ class Mobile:
             point = parents[point]
 
         if path:
-            self.direction = path[0].direction(self.position)
+            self.direction = path[0].direction_of(self.position)
             self.position = path[0]
             return True
         return False

@@ -90,7 +90,7 @@ class Game(LayerManager):
         self.level = Level(1, self.generation_rng)
         self.player = Player(10, list(self.level.graph.keys())[0], Direction.NORTH, self.level.graph)
         self.level_layer = LevelLayer(self.level, self.player, self.window.get_width(), self.window.get_height())
-        self.rooms = {self.level.rooms[i]: Room(1, self.generation_rng, self.ai_rng, self.loot_tables[0], [p.direction(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
+        self.rooms = {self.level.rooms[i]: Room(1, self.generation_rng, self.ai_rng, self.loot_tables[0], [p.direction_of(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
         self.current_room = list(self.rooms.keys())[0]
         self.room_layer = RoomLayer(list(self.rooms.values())[0], self.player, self.window.get_width(), self.window.get_height())
         self.inventory_layer = InventoryLayer(self.player.inventory, self.window.get_width(), self.window.get_height())
@@ -116,7 +116,7 @@ class Game(LayerManager):
         self.level_layer.player_display.last_moved = time() + 0.2
 
         loot_table_index = self.level.difficulty - 1 if self.level.difficulty - 1 < len(self.loot_tables) else -1
-        self.rooms = {self.level.rooms[i]: Room(self.level.difficulty, self.generation_rng, self.ai_rng, self.loot_tables[loot_table_index], [p.direction(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
+        self.rooms = {self.level.rooms[i]: Room(self.level.difficulty, self.generation_rng, self.ai_rng, self.loot_tables[loot_table_index], [p.direction_of(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
         self.current_room = list(self.rooms.keys())[0]
 
         self.level_layer.level_display.level = self.level

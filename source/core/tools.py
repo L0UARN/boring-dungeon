@@ -7,6 +7,7 @@ Classes:
 
 from __future__ import annotations
 from enum import Enum
+from math import sqrt
 
 
 class Direction(Enum):
@@ -82,7 +83,7 @@ class Position:
         else:  # direction == Direction.WEST
             return Position(self.x - 1, self.y)
 
-    def direction(self, other: Position) -> Direction:
+    def direction_of(self, other: Position) -> Direction:
         """ Get the direction in which the other is.
 
         :param other: Another position.
@@ -101,3 +102,11 @@ class Position:
                 return Direction.SOUTH
             else:
                 return Direction.NORTH
+
+    def distance(self, other: Position) -> int:
+        """ Get the distance this position and the other.
+
+        :param other: The position of which the distance to this one will be determined.
+        :return: The distance between this position and the other.
+        """
+        return int(round(sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2)))

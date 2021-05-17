@@ -194,7 +194,7 @@ class LevelComponent(Component):
                     self.stairs_texture.render(
                         surface,
                         Position(offset_x, offset_y),
-                        Position(x, y).direction(self.level.graph[Position(x, y)][0]).opposite()
+                        Position(x, y).direction_of(self.level.graph[Position(x, y)][0]).opposite()
                     )
                 elif Position(x, y) in self.level.graph:
                     self.floor_texture.render(surface, Position(offset_x, offset_y))
