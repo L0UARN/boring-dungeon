@@ -18,19 +18,20 @@ from source.ui.box import BoxComponent
 from source.ui.text import TextComponent
 from source.loot import LootTable
 from source.item import Item
+from source.enemy import Enemy, EnemyComponent
 
 
 class Room:
     """
     Rooms are placed inside of levels, they contain items to loot and enemies to fight.
     """
-    def __init__(self, difficulty: int, rng: Random, loot_table: LootTable, openings: list[Direction]) -> None:
+    def __init__(self, difficulty: int, generation_rng: Random, ai_rng: Random, loot_table: LootTable, openings: list[Direction]) -> None:
         """
         :param difficulty: How complex and big the room is.
-        :param rng: The random number generator used the generation process.
+        :param generation_rng: The random number generator used the generation process.
         """
         self.difficulty = difficulty
-        self.rng = rng
+        self.rng = generation_rng
 
         self.width = 0
         self.height = 0
@@ -40,6 +41,8 @@ class Room:
         self.doors: dict[Position, Direction] = {}
         self.loot_table = loot_table
         self.items: dict[Position, Item] = {}
+        self.ai_rng = ai_rng
+        self.enemies: list[Enemy] = []
 
         self.generate()
 
@@ -50,6 +53,7 @@ class Room:
         self._generate_room()
         self._generate_doors()
         self._generate_items()
+        self._generate_enemies()
 
     def _generate_room(self) -> None:
         """
@@ -111,6 +115,20 @@ class Room:
         spots = self.rng.sample(available_spots, len(items))
 
         self.items = {spots[i]: items[i] for i in range(len(items)) if items[i] is not None}
+
+    def _generate_enemies(self) -> None:
+        if self.difficulty == 1:
+            self.enemies = []
+            return
+
+        enemy_graph = {p: [l for l in self.graph[p] if l not in self.doors] for p in self.graph if p not in self.doors}
+        self.enemies = [Enemy(
+            self.rng.randint(5 + self.difficulty, 5 + self.difficulty * 2),
+            self.rng.choice(list(enemy_graph.keys())),
+            self.rng.choice(list(Direction)),
+            enemy_graph,
+            self.ai_rng
+        ) for _ in range(0, self.rng.randint(0, self.difficulty // 2))]
 
 
 class RoomComponent(Component):
@@ -190,7 +208,8 @@ class RoomLayer(Layer):
         super().__init__(False, width, height)
         self.room_display = RoomComponent(room, list(room.graph.keys())[0], Position(0, 0), width, height)
         self.player_display = PlayerComponent(player, Position((width - Texture.TileSize) // 2, (height - Texture.TileSize) // 2), Texture.TileSize, Texture.TileSize)
-        self.item_displays = []
+        self.enemy_displays = [EnemyComponent(enemy, Position(0, 0)) for enemy in self.room_display.room.enemies]
+        print(len(self.enemy_displays))
         self.halo_effect = HaloComponent(Position(0, 0), width, height)
         self.info_box = BoxComponent(Position(0, int(height * 0.75)), width, int(height * 0.25))
         self.info_text = TextComponent("resources/font.ttf", 32, (0, 0, 0), Position(0, int(height * 0.75)), width, int(height * 0.25), True, 16.0)
@@ -203,6 +222,10 @@ class RoomLayer(Layer):
         super().update(events)
         self.room_display.update(events)
         self.player_display.update(events)
+
+        for enemy in self.enemy_displays:
+            enemy.update(events)
+
         self.room_display.center = self.player_display.player.position
         self.halo_effect.update(events)
         self.info_box.update(events)
@@ -220,6 +243,14 @@ class RoomLayer(Layer):
         super().render(surface)
         self.room_display.render(surface)
         self.player_display.render(surface)
+
+        for enemy in self.enemy_displays:
+            enemy.render_position = Position(
+                self.player_display.render_position.x + (enemy.enemy.position.x - self.room_display.center.x) * Texture.TileSize,
+                self.player_display.render_position.y + (enemy.enemy.position.y - self.room_display.center.y) * Texture.TileSize
+            )
+            enemy.render(surface)
+
         self.halo_effect.render(surface)
         self.info_box.render(surface)
         self.info_text.render(surface)

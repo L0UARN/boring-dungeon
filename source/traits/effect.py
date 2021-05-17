@@ -51,7 +51,7 @@ class Affectible:
         """
         self.effects.append(effect)
 
-    def update(self, events: list[event.Event]) -> None:
+    def update_effects(self, events: list[event.Event]) -> None:
         """ Updates every events attached to the entity, and removes the ones which faded away.
 
         :param events: The list of events lastly pulled.

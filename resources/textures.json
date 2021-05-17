@@ -39,6 +39,10 @@
         "frame_count": 8,
         "loop_animation": true
     },
+    "enemy": {
+        "type": "tile",
+        "path": "resources/enemy.png"
+    },
     "halo": {
         "type": "ui",
         "path": "resources/halo.png",

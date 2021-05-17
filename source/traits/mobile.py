@@ -48,7 +48,7 @@ class Mobile:
         """
         if teleport:
             if position in self.graph:
-                self.direction = self.position.direction(position)
+                self.direction = position.direction(self.position)
                 self.position = position
                 return True
             else:
@@ -75,7 +75,7 @@ class Mobile:
             point = parents[point]
 
         if path:
-            self.direction = self.position.direction(path[0])
+            self.direction = path[0].direction(self.position)
             self.position = path[0]
             return True
         return False

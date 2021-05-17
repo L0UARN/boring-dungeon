@@ -15,9 +15,9 @@ from source.room import Room, RoomLayer
 from source.menu import MenuLayer
 from source.core.texture import Texture
 from source.resources import TEXTURES
-from source.inventory import InventoryLayer, Inventory
-from source.item import Weapon
+from source.inventory import InventoryLayer
 from source.loot import ITEMS, LootTable
+from source.enemy import EnemyComponent
 
 
 class Game(LayerManager):
@@ -37,6 +37,7 @@ class Game(LayerManager):
         TEXTURES.load("resources/textures.json")
 
         self.generation_rng: Random = None
+        self.ai_rng: Random = None
         self.seed: str = None
         self.player: Player = None
         self.level: Level = None
@@ -73,6 +74,7 @@ class Game(LayerManager):
         Loads the game's component after the menu phase.
         """
         self.generation_rng = Random()
+        self.ai_rng = Random()
         if self.menu_layer.input.get_text() == "":
             file = open("data/seeds.txt", "r")
             self.seed = choice(file.read().split("\n"))
@@ -80,6 +82,7 @@ class Game(LayerManager):
         else:
             self.seed = self.menu_layer.input.get_text()
         self.generation_rng.seed(a=self.seed, version=2)
+        self.ai_rng.seed(a=self.seed, version=2)
 
         ITEMS.load("data/items.json")
         self.loot_tables = [LootTable(f"data/loot_tables/{file}", self.generation_rng) for file in listdir("data/loot_tables/") if file.split(".")[-1] == "json"]
@@ -87,7 +90,7 @@ class Game(LayerManager):
         self.level = Level(1, self.generation_rng)
         self.player = Player(10, list(self.level.graph.keys())[0], Direction.NORTH, self.level.graph)
         self.level_layer = LevelLayer(self.level, self.player, self.window.get_width(), self.window.get_height())
-        self.rooms = {self.level.rooms[i]: Room(1, self.generation_rng, self.loot_tables[0], [p.direction(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
+        self.rooms = {self.level.rooms[i]: Room(1, self.generation_rng, self.ai_rng, self.loot_tables[0], [p.direction(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
         self.current_room = list(self.rooms.keys())[0]
         self.room_layer = RoomLayer(list(self.rooms.values())[0], self.player, self.window.get_width(), self.window.get_height())
         self.inventory_layer = InventoryLayer(self.player.inventory, self.window.get_width(), self.window.get_height())
@@ -113,11 +116,12 @@ class Game(LayerManager):
         self.level_layer.player_display.last_moved = time() + 0.2
 
         loot_table_index = self.level.difficulty - 1 if self.level.difficulty - 1 < len(self.loot_tables) else -1
-        self.rooms = {self.level.rooms[i]: Room(self.level.difficulty, self.generation_rng, self.loot_tables[loot_table_index], [p.direction(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
+        self.rooms = {self.level.rooms[i]: Room(self.level.difficulty, self.generation_rng, self.ai_rng, self.loot_tables[loot_table_index], [p.direction(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
         self.current_room = list(self.rooms.keys())[0]
 
         self.level_layer.level_display.level = self.level
         self.room_layer.room_display.room = self.rooms[self.current_room]
+        self.room_layer.enemy_displays = [EnemyComponent(enemy, Position(0, 0)) for enemy in self.rooms[self.current_room].enemies]
 
         self.level_layer.info_text.set_text([
             f"Level: {self.level.difficulty}",
@@ -132,6 +136,7 @@ class Game(LayerManager):
         """
         self.current_room = room
         self.room_layer.room_display.room = self.rooms[self.current_room]
+        self.room_layer.enemy_displays = [EnemyComponent(enemy, Position(0, 0)) for enemy in self.rooms[self.current_room].enemies]
 
         direction_to_pos_doors = {self.rooms[self.current_room].doors[p]: p for p in self.rooms[self.current_room].doors}
         self.player.position = direction_to_pos_doors[self.player.direction.opposite()].next_in_direction(self.player.direction)

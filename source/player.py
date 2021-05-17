@@ -18,7 +18,7 @@ class Player(Fighter, Mobile, Affectible):
     """
     The representation of the player in the game.
     """
-    def __init__(self, max_health: int, position: Position, direction: Direction, graph: dict[Position, [Position]]) -> None:
+    def __init__(self, max_health: int, position: Position, direction: Direction, graph: dict[Position, list[Position]]) -> None:
         """
         :param max_health: The maximum amount of health the player can have.
         :param position: The initial position of the player.
