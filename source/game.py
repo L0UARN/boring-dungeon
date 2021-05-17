@@ -90,11 +90,6 @@ class Game(LayerManager):
         self.rooms = {self.level.rooms[i]: Room(1, self.generation_rng, self.loot_tables[0], [p.direction(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
         self.current_room = list(self.rooms.keys())[0]
         self.room_layer = RoomLayer(list(self.rooms.values())[0], self.player, self.window.get_width(), self.window.get_height())
-
-        inventory = Inventory()
-        inventory.add_item(Weapon("sword", 1, 3))
-        self.player.inventory = inventory
-
         self.inventory_layer = InventoryLayer(self.player.inventory, self.window.get_width(), self.window.get_height())
 
         self.level_layer.info_text.set_text([
