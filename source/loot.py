@@ -84,3 +84,25 @@ class LootTable:
             rates.append(1.0 - sum(rates))
 
         return self.rng.choices(items, weights=rates, k=self.amount)
+
+    def get_weapon(self) -> Weapon:
+        """ Get a random weapon from the table.
+
+        :return: A weapon from the table, based on the drop rate of each weapon present in the table.
+        """
+        weapons = {i: self.table[i] for i in self.table if isinstance(i, Weapon)}
+        if len(weapons) >= 1:
+            return self.rng.choices(list(weapons.keys()), weights=list(weapons.values()), k=1)[0]
+        else:
+            return None
+
+    def get_armor(self) -> Armor:
+        """ Get a random armor piece from the table.
+
+        :return: An armor piece from the table, based on the drop rate of each armor piece present in the table.
+        """
+        armors = {i: self.table[i] for i in self.table if isinstance(i, Armor)}
+        if len(armors) >= 1:
+            return self.rng.choices(list(armors.keys()), weights=list(armors.values()), k=1)[0]
+        else:
+            return None

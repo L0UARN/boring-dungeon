@@ -19,15 +19,16 @@ class Enemy(Fighter, Mobile, Affectible):
     """
     An enemy found in the dungeon.
     """
-    def __init__(self, max_health: int, position: Position, direction: Direction, graph: dict[Position, list[Position]], rng: Random) -> None:
+    def __init__(self, max_health: int, speed: int, position: Position, direction: Direction, graph: dict[Position, list[Position]], rng: Random) -> None:
         """
         :param max_health: The maximum amount of health the enemy can have.
+        :param speed: The attack speed of the enemy.
         :param position: The initial position of the enemy.
         :param direction: The initial direction of the enemy.
         :param graph: The graph on which the enemy will move.
         :param rng: The random numbers generator used for the 'AI' of the enemy.
         """
-        Fighter.__init__(self, max_health)
+        Fighter.__init__(self, max_health, speed)
         Mobile.__init__(self, position, direction, graph)
         Affectible.__init__(self)
 

@@ -13,12 +13,14 @@ class Fighter(Living):
     """
     A fighter is a living entity that can fight. It has an inventory.
     """
-    def __init__(self, max_health: int) -> None:
+    def __init__(self, max_health: int, speed: int) -> None:
         """
         :param max_health: The maximum amount of health the fighter entity can have.
+        :param speed: The initial speed of the fighter.
         """
         super().__init__(max_health)
         self.inventory = Inventory()
+        self.speed = speed
         self.last_attack = 0
 
     def damage(self, amount: int) -> None:
@@ -37,7 +39,11 @@ class Fighter(Living):
 
         :param target: The fighter to deal damage to.
         """
-        if time() - self.last_attack >= self.inventory.get_equipped_weight() * 0.1:
+        attack_speed = (self.speed - self.inventory.get_equipped_weight()) * 0.1
+        if attack_speed <= 0:
+            attack_speed = 1.5
+
+        if time() - self.last_attack >= attack_speed:
             if self.inventory.get_weapon() is None:
                 target.damage(1)
             else:

@@ -13,7 +13,7 @@ from source.core.component import Component
 from source.core.texture import Texture
 from source.resources import TEXTURES as T
 from source.core.layer import Layer
-from source.player import Player, PlayerComponent
+from source.player import Player, ExploringPlayerComponent
 from source.ui.halo import HaloComponent
 from source.ui.box import BoxComponent
 from source.ui.text import TextComponent
@@ -219,7 +219,7 @@ class LevelLayer(Layer):
         """
         super().__init__(False, width, height)
         self.level_display = LevelComponent(level, list(level.graph.keys())[0], Position(0, 0), width, height)
-        self.player_display = PlayerComponent(player, Position((width - Texture.TileSize) // 2, (height - Texture.TileSize) // 2), Texture.TileSize, Texture.TileSize)
+        self.player_display = ExploringPlayerComponent(player, Position((width - Texture.TileSize) // 2, (height - Texture.TileSize) // 2), Texture.TileSize, Texture.TileSize)
         self.halo_effect = HaloComponent(Position(0, 0), width, height)
         self.info_box = BoxComponent(Position(0, int(height * 0.75)), width, int(height * 0.25))
         self.info_text = TextComponent("resources/font.ttf", 32, (0, 0, 0), Position(0, int(height * 0.75)), width, int(height * 0.25), True, 16.0)

@@ -18,19 +18,20 @@ class Player(Fighter, Mobile, Affectible):
     """
     The representation of the player in the game.
     """
-    def __init__(self, max_health: int, position: Position, direction: Direction, graph: dict[Position, list[Position]]) -> None:
+    def __init__(self, max_health: int, speed: int, position: Position, direction: Direction, graph: dict[Position, list[Position]]) -> None:
         """
         :param max_health: The maximum amount of health the player can have.
+        :param speed: The base attack speed of the player.
         :param position: The initial position of the player.
         :param direction: The initial direction of the player.
         :param graph: The graph on which the player will move.
         """
-        Fighter.__init__(self, max_health)
+        Fighter.__init__(self, max_health, speed)
         Mobile.__init__(self, position, direction, graph)
         Affectible.__init__(self)
 
 
-class PlayerComponent(Component):
+class ExploringPlayerComponent(Component):
     """
     Contains a player.
     """

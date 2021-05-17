@@ -88,7 +88,7 @@ class Game(LayerManager):
         self.loot_tables = [LootTable(f"data/loot_tables/{file}", self.generation_rng) for file in sorted(listdir("data/loot_tables/")) if file.split(".")[-1] == "json"]
 
         self.level = Level(1, self.generation_rng)
-        self.player = Player(10, list(self.level.graph.keys())[0], Direction.NORTH, self.level.graph)
+        self.player = Player(10, 6, list(self.level.graph.keys())[0], Direction.NORTH, self.level.graph)
         self.level_layer = LevelLayer(self.level, self.player, self.window.get_width(), self.window.get_height())
         self.rooms = {self.level.rooms[i]: Room(1, self.generation_rng, self.ai_rng, self.loot_tables[0], [p.direction_of(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
         self.current_room = list(self.rooms.keys())[0]

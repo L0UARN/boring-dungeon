@@ -12,13 +12,14 @@ from source.core.component import Component
 from source.core.texture import Texture
 from source.resources import TEXTURES as T
 from source.core.layer import Layer
-from source.player import Player, PlayerComponent
+from source.player import Player, ExploringPlayerComponent
 from source.ui.halo import HaloComponent
 from source.ui.box import BoxComponent
 from source.ui.text import TextComponent
 from source.loot import LootTable
 from source.item import Item
 from source.enemy import Enemy, EnemyComponent
+from source.inventory import Inventory
 
 
 class Room:
@@ -124,11 +125,16 @@ class Room:
         enemy_graph = {p: [l for l in self.graph[p] if l not in self.doors] for p in self.graph if p not in self.doors}
         self.enemies = [Enemy(
             self.rng.randint(5 + self.difficulty, 5 + self.difficulty * 2),
+            self.rng.randint(5 + self.difficulty, 5 + self.difficulty * 2),
             self.rng.choice(list(enemy_graph.keys())),
             self.rng.choice(list(Direction)),
             enemy_graph,
             self.ai_rng
         ) for _ in range(0, self.rng.randint(0, self.difficulty // 2))]
+
+        for enemy in self.enemies:
+            enemy.inventory.set_weapon(self.loot_table.get_weapon(), False)
+            enemy.inventory.set_armor(self.loot_table.get_armor(), False)
 
 
 class RoomComponent(Component):
@@ -207,7 +213,7 @@ class RoomLayer(Layer):
         """
         super().__init__(False, width, height)
         self.room_display = RoomComponent(room, list(room.graph.keys())[0], Position(0, 0), width, height)
-        self.player_display = PlayerComponent(player, Position((width - Texture.TileSize) // 2, (height - Texture.TileSize) // 2), Texture.TileSize, Texture.TileSize)
+        self.player_display = ExploringPlayerComponent(player, Position((width - Texture.TileSize) // 2, (height - Texture.TileSize) // 2), Texture.TileSize, Texture.TileSize)
         self.enemy_displays = [EnemyComponent(enemy, Position(0, 0)) for enemy in self.room_display.room.enemies]
         print(len(self.enemy_displays))
         self.halo_effect = HaloComponent(Position(0, 0), width, height)
@@ -228,7 +234,8 @@ class RoomLayer(Layer):
 
             if self.enemy_displays[i].enemy.direction == self.player_display.player.position.direction_of(self.enemy_displays[i].enemy.position) and \
                self.enemy_displays[i].enemy.position.distance(self.player_display.player.position) <= 3 and \
-               self.enemy_displays[i].enemy.has_path(self.player_display.player.position):
+               self.enemy_displays[i].enemy.has_path(self.player_display.player.position) and \
+               not self.enemy_displays[i].enemy.has_target:
                 self.player_display.movement_locked = True
                 self.enemy_displays[i].enemy_texture = T.get("enemy_aggro")
                 self.enemy_displays[i].enemy.has_target = True
