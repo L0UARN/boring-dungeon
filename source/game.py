@@ -17,7 +17,9 @@ from source.core.texture import Texture
 from source.resources import TEXTURES
 from source.inventory import InventoryLayer
 from source.loot import ITEMS, LootTable
-from source.enemy import EnemyComponent
+from source.enemy import RoamingEnemyComponent, Enemy
+from source.fight import FightLayer
+from source.item import ArmorSlot
 
 
 class Game(LayerManager):
@@ -46,6 +48,7 @@ class Game(LayerManager):
         self.rooms: dict[Position, Room] = None
         self.room_layer: RoomLayer = None
         self.inventory_layer: InventoryLayer = None
+        self.fight_layer: FightLayer = None
 
         self.menu_layer = MenuLayer(self.window.get_width(), self.window.get_height())
 
@@ -94,6 +97,7 @@ class Game(LayerManager):
         self.current_room = list(self.rooms.keys())[0]
         self.room_layer = RoomLayer(list(self.rooms.values())[0], self.player, self.window.get_width(), self.window.get_height())
         self.inventory_layer = InventoryLayer(self.player.inventory, self.window.get_width(), self.window.get_height())
+        self.fight_layer = FightLayer(self.player, Enemy(1, 1, Position(0, 0), Direction.NORTH, {"a": 0}, Random()), self.window.get_width(), self.window.get_height())
 
         self.level_layer.info_text.set_text([
             f"Level: {self.level.difficulty}",
@@ -103,6 +107,7 @@ class Game(LayerManager):
         self.add_layer("level", self.level_layer)
         self.add_layer("room", self.room_layer)
         self.add_layer("inventory", self.inventory_layer)
+        self.add_layer("fight", self.fight_layer)
         self.set_focus("level")
 
     def _level_down(self) -> None:
@@ -121,7 +126,7 @@ class Game(LayerManager):
 
         self.level_layer.level_display.level = self.level
         self.room_layer.room_display.room = self.rooms[self.current_room]
-        self.room_layer.enemy_displays = [EnemyComponent(enemy, Position(0, 0)) for enemy in self.rooms[self.current_room].enemies]
+        self.room_layer.enemy_displays = [RoamingEnemyComponent(enemy, Position(0, 0)) for enemy in self.rooms[self.current_room].enemies]
 
         self.level_layer.info_text.set_text([
             f"Level: {self.level.difficulty}",
@@ -136,7 +141,7 @@ class Game(LayerManager):
         """
         self.current_room = room
         self.room_layer.room_display.room = self.rooms[self.current_room]
-        self.room_layer.enemy_displays = [EnemyComponent(enemy, Position(0, 0)) for enemy in self.rooms[self.current_room].enemies]
+        self.room_layer.enemy_displays = [RoamingEnemyComponent(enemy, Position(0, 0)) for enemy in self.rooms[self.current_room].enemies]
 
         direction_to_pos_doors = {self.rooms[self.current_room].doors[p]: p for p in self.rooms[self.current_room].doors}
         self.player.position = direction_to_pos_doors[self.player.direction.opposite()].next_in_direction(self.player.direction)
@@ -166,6 +171,35 @@ class Game(LayerManager):
 
         self.set_focus("level")
 
+    def _enter_fight(self, enemy: Enemy) -> None:
+        """
+        Make the player fight with an enemy.
+        """
+        self.fight_layer = FightLayer(self.player, enemy, self.window.get_width(), self.window.get_height())
+        self.layers["fight"] = self.fight_layer
+        self.set_focus("fight")
+
+    def _exit_fight(self) -> None:
+        """
+        Stops the fight screen and goes back to room exploration.
+        """
+        if self.fight_layer.enemy_display.enemy.speed >= self.fight_layer.enemy_display.enemy.inventory.get_protection():
+            weapon = self.fight_layer.enemy_display.enemy.inventory.get_weapon()
+            if weapon is not None:
+                self.room_layer.room_display.room.items[self.player.position] = weapon
+        else:
+            pieces = [self.fight_layer.enemy_display.enemy.inventory.get_armor(s) for s in ArmorSlot]
+            while None in pieces:
+                pieces.remove(None)
+            if len(pieces) >= 1:
+                self.room_layer.room_display.room.items[self.player.position] = pieces[0]
+
+        self.room_layer.player_display.movement_locked = False
+        for enemy in self.room_layer.enemy_displays:
+            enemy.ai_locked = False
+
+        self.set_focus("room")
+
     def update(self, events: list[pg.event.Event]) -> None:
         """ Updates the game.
 
@@ -186,10 +220,23 @@ class Game(LayerManager):
         elif self.get_focus() == "room":
             if self.player.position in self.rooms[self.current_room].doors:
                 self._exit_room()
+            else:
+                enemy_id = -1
+                for i in range(len(self.room_layer.enemy_displays)):
+                    if self.room_layer.enemy_displays[i].enemy.position == self.player.position:
+                        self._enter_fight(self.room_layer.enemy_displays[i].enemy)
+                        enemy_id = i
+                        break
+
+                if enemy_id != -1:
+                    self.room_layer.enemy_displays.pop(enemy_id)
+        elif self.get_focus() == "fight":
+            if self.fight_layer.ended:
+                self._exit_fight()
 
         for event in events:
             if event.type == pg.KEYDOWN:
-                if (event.key == pg.K_e or event.key == pg.K_i) and (self.get_focus() == "level" or self.get_focus() == "room"):
+                if (event.key == pg.K_e or event.key == pg.K_i) and (self.get_focus() == "level" or self.get_focus() == "room" or self.get_focus() == "fight"):
                     self.set_focus("inventory")
                 elif (event.key == pg.K_ESCAPE or event.key == pg.K_e or event.key == pg.K_i) and self.get_focus() == "inventory":
                     self.unfocus()

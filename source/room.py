@@ -18,8 +18,7 @@ from source.ui.box import BoxComponent
 from source.ui.text import TextComponent
 from source.loot import LootTable
 from source.item import Item
-from source.enemy import Enemy, EnemyComponent
-from source.inventory import Inventory
+from source.enemy import Enemy, RoamingEnemyComponent
 
 
 class Room:
@@ -213,9 +212,8 @@ class RoomLayer(Layer):
         """
         super().__init__(False, width, height)
         self.room_display = RoomComponent(room, list(room.graph.keys())[0], Position(0, 0), width, height)
-        self.player_display = ExploringPlayerComponent(player, Position((width - Texture.TileSize) // 2, (height - Texture.TileSize) // 2), Texture.TileSize, Texture.TileSize)
-        self.enemy_displays = [EnemyComponent(enemy, Position(0, 0)) for enemy in self.room_display.room.enemies]
-        print(len(self.enemy_displays))
+        self.player_display = ExploringPlayerComponent(player, Position((width - Texture.TileSize) // 2, (height - Texture.TileSize) // 2))
+        self.enemy_displays = [RoamingEnemyComponent(enemy, Position(0, 0)) for enemy in self.room_display.room.enemies]
         self.halo_effect = HaloComponent(Position(0, 0), width, height)
         self.info_box = BoxComponent(Position(0, int(height * 0.75)), width, int(height * 0.25))
         self.info_text = TextComponent("resources/font.ttf", 32, (0, 0, 0), Position(0, int(height * 0.75)), width, int(height * 0.25), True, 16.0)
@@ -235,15 +233,15 @@ class RoomLayer(Layer):
             if self.enemy_displays[i].enemy.direction == self.player_display.player.position.direction_of(self.enemy_displays[i].enemy.position) and \
                self.enemy_displays[i].enemy.position.distance(self.player_display.player.position) <= 3 and \
                self.enemy_displays[i].enemy.has_path(self.player_display.player.position) and \
-               not self.enemy_displays[i].enemy.has_target:
+               not self.enemy_displays[i].has_target:
                 self.player_display.movement_locked = True
                 self.enemy_displays[i].enemy_texture = T.get("enemy_aggro")
-                self.enemy_displays[i].enemy.has_target = True
-                self.enemy_displays[i].enemy.destination = self.player_display.player.position
+                self.enemy_displays[i].has_target = True
+                self.enemy_displays[i].destination = self.player_display.player.position
 
                 for j in range(len(self.enemy_displays)):
                     if j != i:
-                        self.enemy_displays[j].enemy.ai_locked = True
+                        self.enemy_displays[j].ai_locked = True
 
                 break
 

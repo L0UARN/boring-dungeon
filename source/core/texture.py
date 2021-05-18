@@ -11,8 +11,9 @@ from enum import Enum
 from time import time
 from math import floor
 from copy import copy
-from pygame import Surface, image, transform, Rect
+from pygame import Surface, image, transform, Rect, event
 from source.core.tools import Position, Direction
+from source.core.component import Component
 
 
 class TextureType(Enum):
@@ -119,6 +120,21 @@ class Texture:
             frame_rect.h = self.get_width()
 
         surface.blit(self.surfaces[direction], (position.x, position.y), frame_rect)
+
+
+class TextureComponent(Component):
+    """
+    A component that is only a texture.
+    """
+    def __init__(self, render_position: Position, texture: Texture):
+        super().__init__(render_position, texture.get_width(), texture.get_height())
+        self.texture = texture
+
+    def update(self, events: list[event.Event]) -> None:
+        pass
+
+    def render(self, surface: Surface) -> None:
+        self.texture.render(surface, self.render_position)
 
 
 class TextureBook:

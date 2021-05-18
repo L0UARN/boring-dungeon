@@ -3,10 +3,10 @@ Boring Dungeon is a simple dungeon exploration game, in which the goal is to
 explore a procedurally generated dungeon in order to go as deep as possible, while
 fighting monsters with the gear you loot along the way.
 
-**Disclaimer: The game is currently unfinished**. The combat system is the only
-feature left to implement, and because of that, the game is currently unplayable
-(enemies approaching the player will not trigger the (nonexistent) combat sequence,
-blocking gameplay.)
+**Disclaimer: The game is currently unfinished**. Loosing a fight will lock you from
+doing any more fights, but will not end the game. This is because there are no end
+screens yet. There are also no current way to heal or boost your speed, because
+potions are yet to be implemented.
 
 ## How to play
 **In the menu**, input the generation seed or leave the field blank, and press the

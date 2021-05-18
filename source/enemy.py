@@ -33,45 +33,9 @@ class Enemy(Fighter, Mobile, Affectible):
         Affectible.__init__(self)
 
         self.rng = rng
-        self.destination = self.rng.choice(list(self.graph.keys()))
-        self.last_moved = time()
-        self.taking_break = False
-        self.last_break_update = time()
-        self.break_start = 0
-        self.has_target = False
-        self.ai_locked = False
-
-    def update_ai(self) -> None:
-        """
-        Updates the enemy's behavior.
-        """
-        if self.ai_locked:
-            return
-
-        if self.has_target:
-            if time() - self.last_moved >= 0.25:
-                self.move_towards(self.destination)
-                self.last_moved = time()
-        elif self.taking_break:
-            if time() - self.last_break_update >= 0.50:
-                self.direction = self.rng.choice(self.direction.possible_turns())
-                if self.rng.random() < (time() - self.break_start) / 4:
-                    self.taking_break = False
-                    self.last_moved = time()
-                    self.destination = self.rng.choice(list(self.graph.keys()))
-                self.last_break_update = time()
-        elif time() - self.last_moved >= 0.40:
-            if self.position == self.destination:
-                self.taking_break = True
-                self.break_start = time()
-                self.last_break_update = time()
-            elif not self.move_towards(self.destination):
-                self.direction = self.rng.choice(self.direction.possible_turns())
-                self.destination = self.rng.choice(list(self.graph.keys()))
-            self.last_moved = time()
 
 
-class EnemyComponent(Component):
+class RoamingEnemyComponent(Component):
     """
     Contains an enemy.
     """
@@ -84,12 +48,43 @@ class EnemyComponent(Component):
         super().__init__(render_position, self.enemy_texture.get_width(), self.enemy_texture.get_height())
         self.enemy = enemy
 
+        self.destination = self.enemy.rng.choice(list(self.enemy.graph.keys()))
+        self.last_moved = time()
+        self.taking_break = False
+        self.last_break_update = time()
+        self.break_start = 0
+        self.has_target = False
+        self.ai_locked = False
+
     def update(self, events: list[event.Event]) -> None:
         """ Updates the enemy.
 
         :param events: A list of the lastly pulled events.
         """
-        self.enemy.update_ai()
+        if self.ai_locked:
+            return
+
+        if self.has_target:
+            if time() - self.last_moved >= 0.25:
+                self.enemy.move_towards(self.destination)
+                self.last_moved = time()
+        elif self.taking_break:
+            if time() - self.last_break_update >= 0.50:
+                self.enemy.direction = self.enemy.rng.choice(self.enemy.direction.possible_turns())
+                if self.enemy.rng.random() < (time() - self.break_start) / 4:
+                    self.taking_break = False
+                    self.last_moved = time()
+                    self.destination = self.enemy.rng.choice(list(self.enemy.graph.keys()))
+                self.last_break_update = time()
+        elif time() - self.last_moved >= 0.40:
+            if self.enemy.position == self.destination:
+                self.taking_break = True
+                self.break_start = time()
+                self.last_break_update = time()
+            elif not self.enemy.move_towards(self.destination):
+                self.enemy.direction = self.enemy.rng.choice(self.enemy.direction.possible_turns())
+                self.destination = self.enemy.rng.choice(list(self.enemy.graph.keys()))
+            self.last_moved = time()
 
     def render(self, surface: Surface) -> None:
         """ Renders the enemy.
@@ -97,3 +92,44 @@ class EnemyComponent(Component):
         :param surface: The surface on which the enemy will be rendered.
         """
         self.enemy_texture.render(surface, self.render_position, self.enemy.direction)
+
+
+class FightingEnemyComponent(Component):
+    """
+    An enemy's representation while in combat.
+    """
+    def __init__(self, enemy: Enemy, target: Fighter, render_position: Position):
+        self.fighting_texture = T.get("enemy_fighting")
+        self.blocking_texture = T.get("enemy_fighting_blocking")
+        super().__init__(render_position, self.fighting_texture.get_width(), self.fighting_texture.get_height())
+        self.enemy = enemy
+        self.target = target
+        self.can_attack = True
+
+        self.delay = self.enemy.rng.random() / 4
+        self.last_action = 0
+        self.block_chance = 0.25 if self.enemy.speed > self.enemy.inventory.get_protection() else 0.50
+        self.block_time = 0
+        self.block_length = 1.0 if self.enemy.speed > self.enemy.inventory.get_protection() else 2.0
+
+    def update(self, events: list[event.Event]) -> None:
+        if self.can_attack and time() - self.enemy.last_attack >= self.enemy.attack_speed + self.delay:
+            if self.enemy.blocking:
+                if time() - self.block_time >= self.block_length + self.delay:
+                    self.enemy.blocking = False
+                    self.last_action = 1
+            elif self.last_action == 1:
+                if self.enemy.attack(self.target):
+                    self.last_action = 0
+            else:
+                if self.enemy.rng.random() < self.block_chance:
+                    self.enemy.blocking = True
+                    self.block_time = time()
+                elif self.enemy.attack(self.target):
+                    self.last_action = 0
+
+    def render(self, surface: Surface) -> None:
+        if self.enemy.blocking:
+            self.blocking_texture.render(surface, self.render_position)
+        else:
+            self.fighting_texture.render(surface, self.render_position)

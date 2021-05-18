@@ -134,5 +134,25 @@
     "boots_item": {
         "type": "ui",
         "path": "resources/boots_item.png"
+    },
+    "player_fighting": {
+        "type": "ui",
+        "path": "resources/player_fighting.png"
+    },
+    "player_fighting_blocking": {
+        "type": "ui",
+        "path": "resources/player_fighting_blocking.png"
+    },
+    "enemy_fighting": {
+        "type": "ui",
+        "path": "resources/enemy_fighting.png"
+    },
+    "enemy_fighting_blocking": {
+        "type": "ui",
+        "path": "resources/enemy_fighting_blocking.png"
+    },
+    "fight": {
+        "type": "ui",
+        "path": "resources/fight.png"
     }
 }

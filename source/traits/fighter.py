@@ -21,32 +21,45 @@ class Fighter(Living):
         super().__init__(max_health)
         self.inventory = Inventory()
         self.speed = speed
+        self.attack_speed: float
+        if self.speed - self.inventory.get_equipped_weight() <= 0:
+            self.attack_speed = 1
+        else:
+            self.attack_speed = 1 / (self.speed - self.inventory.get_equipped_weight())
         self.last_attack = 0
+        self.blocking = False
 
     def damage(self, amount: int) -> None:
         """ Damages the entity, accounting for the equipped armor.
 
         :param amount: The amount of damage to deal.
         """
-        amount -= self.inventory.get_protection()
+        if self.blocking:
+            amount -= self.inventory.get_protection() * 2
+        else:
+            amount -= self.inventory.get_protection()
         if amount <= 0:
             amount = 1
 
         super().damage(amount)
 
-    def attack(self, target: Fighter) -> None:
+    def attack(self, target: Fighter) -> bool:
         """ Deal damage to another fighter.
 
         :param target: The fighter to deal damage to.
+        :return: True if the attack succeeded, False if not.
         """
-        attack_speed = (self.speed - self.inventory.get_equipped_weight()) * 0.1
-        if attack_speed <= 0:
-            attack_speed = 1.5
+        if self.speed - self.inventory.get_equipped_weight() <= 0:
+            self.attack_speed = 1
+        else:
+            self.attack_speed = 1 / (self.speed - self.inventory.get_equipped_weight())
 
-        if time() - self.last_attack >= attack_speed:
+        if time() - self.last_attack >= self.attack_speed:
             if self.inventory.get_weapon() is None:
                 target.damage(1)
             else:
                 target.damage(self.inventory.get_weapon().damage)
 
             self.last_attack = time()
+            return True
+        return False
