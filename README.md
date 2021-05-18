@@ -16,7 +16,8 @@ play button to start a new game.
 your inventory. While exploring a level, the exclamation points represent rooms you
 can visit, and stairs are exits to the next level. While inside a room, doors are
 your way out of the room back to the level, red arrows are enemies and flickering
-lights on the grounds represent items you can pickup.
+lights on the grounds represent items you can pickup. While fighting, left click to
+attack the ennemy, and right click to block.
 
 ## Mechanics
 **Levels**: The amount of rooms present in the level is equal to the current
@@ -33,3 +34,8 @@ between 0 and the current difficulty, halved.
 corresponding weight which will slow down your attacks in combat. Protection from
 your armor reduce damage taken, but you will always take at least 1 damage from a
 hit.
+
+**Combat**: Your attack speed is the number of attacks per second you can do. It is
+determined by substracting the weight or your *equipped* gear to your base speed.
+Blocking will double your protection from enemy attacks, but you can only block 0.75
+after having attacked, and you can't do both at the same time.
