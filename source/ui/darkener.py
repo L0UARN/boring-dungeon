@@ -26,6 +26,7 @@ class DarkenerComponent(Component):
         self.end = end
         self.duration = duration
         self.start_time = -1
+        self.done = False
 
     def update(self, events: list[event.Event]) -> None:
         """ Updates the component with the latest events.
@@ -40,6 +41,7 @@ class DarkenerComponent(Component):
         :param surface: The surface on which the dark surface has to be rendered.
         """
         if not self.animated:
+            self.done = True
             draw.rect(surface, (0, 0, 0, 160), Rect(self.render_position.x, self.render_position.y, self.render_width, self.render_height))
             return
 
@@ -48,6 +50,7 @@ class DarkenerComponent(Component):
 
         value: int
         if time() - self.start_time >= self.duration:
+            self.done = True
             value = self.end - self.start
         else:
             value = int(((time() - self.start_time) / self.duration) * (self.end - self.start))

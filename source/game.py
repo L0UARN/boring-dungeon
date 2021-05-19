@@ -7,7 +7,7 @@ from random import Random, choice
 from time import time
 from os import listdir
 import pygame as pg
-from source.core.layer import LayerManager
+from source.core.layer import LayerManager, Layer
 from source.player import Player
 from source.level import Level, LevelLayer
 from source.core.tools import Position, Direction
@@ -21,6 +21,7 @@ from source.enemy import RoamingEnemyComponent, Enemy
 from source.fight import FightLayer
 from source.item import ArmorSlot
 from source.end import EndLayer
+from source.ui.darkener import DarkenerComponent
 
 
 class Game(LayerManager):
@@ -53,8 +54,10 @@ class Game(LayerManager):
         self.end_layer: EndLayer = None
 
         self.menu_layer = MenuLayer(self.window.get_width(), self.window.get_height())
+        self.transition_layer = Layer(True, self.window.get_width(), self.window.get_height())
 
         self.add_layer("menu", self.menu_layer)
+        self.add_layer("transition", self.transition_layer)
         self.set_focus("menu")
 
     def start(self) -> None:
@@ -114,6 +117,9 @@ class Game(LayerManager):
         self.add_layer("end", self.end_layer)
         self.set_focus("level")
 
+        self.transition_layer.add_component("fade", DarkenerComponent(Position(0, 0), self.window.get_width(), self.window.get_height(), True, 255, 0, 1.0))
+        self.set_focus("transition")
+
     def _level_down(self) -> None:
         """
         Loads the next level's components.
@@ -129,6 +135,7 @@ class Game(LayerManager):
         self.current_room = list(self.rooms.keys())[0]
 
         self.level_layer.level_display.level = self.level
+        self.level_layer.level_display.center = self.player.position
         self.room_layer.room_display.room = self.rooms[self.current_room]
         self.room_layer.enemy_displays = [RoamingEnemyComponent(enemy, Position(0, 0)) for enemy in self.rooms[self.current_room].enemies]
 
@@ -136,6 +143,9 @@ class Game(LayerManager):
             f"Level: {self.level.difficulty}",
             f"Seed: {self.seed}"
         ])
+
+        self.transition_layer.add_component("fade", DarkenerComponent(Position(0, 0), self.window.get_width(), self.window.get_height(), True, 255, 0, 1.0))
+        self.set_focus("transition")
 
     def _enter_room(self, room: Position) -> None:
         """
@@ -151,6 +161,7 @@ class Game(LayerManager):
         self.player.position = direction_to_pos_doors[self.player.direction.opposite()].next_in_direction(self.player.direction)
         self.player.graph = self.rooms[self.current_room].graph
         self.room_layer.player_display.last_moved = time() + 0.2
+        self.room_layer.room_display.center = self.player.position
 
         self.room_layer.info_text.set_text([
             f"Level: {self.level.difficulty}",
@@ -160,6 +171,9 @@ class Game(LayerManager):
 
         self.set_focus("room")
 
+        self.transition_layer.add_component("fade", DarkenerComponent(Position(0, 0), self.window.get_width(), self.window.get_height(), True, 255, 0, 1.0))
+        self.set_focus("transition")
+
     def _exit_room(self) -> None:
         """
         Exit a room to go back to the level exploring part of the game.
@@ -167,6 +181,7 @@ class Game(LayerManager):
         self.player.position = self.current_room.next_in_direction(self.player.direction)
         self.player.graph = self.level.graph
         self.level_layer.player_display.last_moved = time() + 0.2
+        self.level_layer.level_display.center = self.player.position
 
         self.level_layer.info_text.set_text([
             f"Level: {self.level.difficulty}",
@@ -175,6 +190,9 @@ class Game(LayerManager):
 
         self.set_focus("level")
 
+        self.transition_layer.add_component("fade", DarkenerComponent(Position(0, 0), self.window.get_width(), self.window.get_height(), True, 255, 0, 1.0))
+        self.set_focus("transition")
+
     def _enter_fight(self, enemy: Enemy) -> None:
         """
         Make the player fight with an enemy.
@@ -182,6 +200,9 @@ class Game(LayerManager):
         self.fight_layer = FightLayer(self.player, enemy, self.window.get_width(), self.window.get_height())
         self.layers["fight"] = self.fight_layer
         self.set_focus("fight")
+
+        self.transition_layer.add_component("fade", DarkenerComponent(Position(0, 0), self.window.get_width(), self.window.get_height(), True, 255, 0, 1.0))
+        self.set_focus("transition")
 
     def _exit_fight(self) -> None:
         """
@@ -205,6 +226,9 @@ class Game(LayerManager):
             enemy.ai_locked = False
 
         self.set_focus("room")
+
+        self.transition_layer.add_component("fade", DarkenerComponent(Position(0, 0), self.window.get_width(),self.window.get_height(), True, 255, 0, 1.0))
+        self.set_focus("transition")
 
     def _end(self) -> None:
         self.end_layer = EndLayer(self.player, self.level_layer.level_display.level.difficulty, self.window.get_width(), self.window.get_height())
@@ -250,6 +274,9 @@ class Game(LayerManager):
         elif self.get_focus() == "end":
             if self.end_layer.button.is_clicked:
                 self.set_focus("menu")
+        elif self.get_focus() == "transition":
+            if self.transition_layer.get_component("fade").done:
+                self.unfocus()
 
         for event in events:
             if event.type == pg.KEYDOWN:
