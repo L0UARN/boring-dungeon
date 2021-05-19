@@ -7,7 +7,6 @@ Classes:
 from time import time
 import pygame as pg
 from pygame import Surface, event
-
 from source.traits.fighter import Fighter
 from source.traits.mobile import Mobile
 from source.traits.effect import Affectible
@@ -31,6 +30,26 @@ class Player(Fighter, Mobile, Affectible):
         Fighter.__init__(self, max_health, speed)
         Mobile.__init__(self, position, direction, graph)
         Affectible.__init__(self)
+
+        self.exp_level = 0
+        self.exp_amount = 0
+        self.exp_needed = 16
+
+    def give_exp(self, amount: int) -> None:
+        """ Gives an amount of experience to the player.
+
+        :param amount: The amount of experience to give.
+        """
+        if self.exp_amount + amount >= self.exp_needed:
+            self.exp_amount = (self.exp_amount + amount) % self.exp_needed
+            self.exp_level += 1
+            self.exp_needed += 8
+
+            self.max_health += 1
+            self.heal(self.max_health // 4)
+            self.speed += 1
+        else:
+            self.exp_amount += amount
 
 
 class ExploringPlayerComponent(Component):

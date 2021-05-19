@@ -247,21 +247,25 @@ class InventoryLayer(Layer):
     """
     The layer used to display the inventory.
     """
-    def __init__(self, inventory: Inventory, width: int, height: int) -> None:
+    def __init__(self, player: object, inventory: Inventory, width: int, height: int) -> None:
         """
+        :param player: The player who owns the inventory.
         :param inventory: The inventory which will be rendered.
         :param width: The width of the screen.
         :param height: The height of the screen.
         """
         super().__init__(True, width, height)
+        self.player = player
         self.inventory_display = InventoryComponent(inventory, Position(0, 0))
         self.inventory_display.render_position = Position((width - self.inventory_display.render_width) // 2, (height - self.inventory_display.render_height) // 2)
+        self.stats_text = TextComponent("resources/font.ttf", 24, (255, 255, 255), Position(self.inventory_display.render_position.x, self.inventory_display.render_position.y - 112), self.inventory_display.render_width, 96)
         self.darkener = DarkenerComponent(Position(0, 0), self.width, self.height)
         self.hint_box = BoxComponent(Position(0, 0), 384, 256)
         self.hint_text = TextComponent("resources/font.ttf", 24, (0, 0, 0), Position(0, 0), 384, 256)
 
         self.add_component("darkener", self.darkener)
         self.add_component("inventory", self.inventory_display)
+        self.add_component("stats", self.stats_text)
         self.add_component("hint_box", self.hint_box)
         self.add_component("hint_text", self.hint_text)
         self.lock_component("hint_box")
@@ -273,6 +277,12 @@ class InventoryLayer(Layer):
         :param events: A list of the lastly pulled events.
         """
         super().update(events)
+
+        self.stats_text.set_text([
+            f"Health: {self.player.health}/{self.player.max_health}",
+            f"Exp: level {self.player.exp_level} ({self.player.exp_amount}/{self.player.exp_needed} to level {self.player.exp_level + 1})",
+            f"Attack speed: {self.player.speed - self.player.inventory.get_equipped_weight()} ({self.player.speed} - {self.player.inventory.get_equipped_weight()})"
+        ])
 
         for e in events:
             if e.type == MOUSEMOTION:

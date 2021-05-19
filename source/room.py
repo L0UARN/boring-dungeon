@@ -124,7 +124,7 @@ class Room:
         enemy_graph = {p: [l for l in self.graph[p] if l not in self.doors] for p in self.graph if p not in self.doors}
         self.enemies = [Enemy(
             self.rng.randint(5 + self.difficulty, 5 + self.difficulty * 2),
-            self.rng.randint(5 + self.difficulty, 5 + self.difficulty * 2),
+            self.rng.randint(2, 2 + self.difficulty),
             self.rng.choice(list(enemy_graph.keys())),
             self.rng.choice(list(Direction)),
             enemy_graph,

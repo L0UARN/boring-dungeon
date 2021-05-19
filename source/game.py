@@ -91,12 +91,12 @@ class Game(LayerManager):
         self.loot_tables = [LootTable(f"data/loot_tables/{file}", self.generation_rng) for file in sorted(listdir("data/loot_tables/")) if file.split(".")[-1] == "json"]
 
         self.level = Level(1, self.generation_rng)
-        self.player = Player(10, 6, list(self.level.graph.keys())[0], Direction.NORTH, self.level.graph)
+        self.player = Player(15, 5, list(self.level.graph.keys())[0], Direction.NORTH, self.level.graph)
         self.level_layer = LevelLayer(self.level, self.player, self.window.get_width(), self.window.get_height())
         self.rooms = {self.level.rooms[i]: Room(1, self.generation_rng, self.ai_rng, self.loot_tables[0], [p.direction_of(self.level.rooms[i]) for p in self.level.graph[self.level.rooms[i]]]) for i in range(len(self.level.rooms))}
         self.current_room = list(self.rooms.keys())[0]
         self.room_layer = RoomLayer(list(self.rooms.values())[0], self.player, self.window.get_width(), self.window.get_height())
-        self.inventory_layer = InventoryLayer(self.player.inventory, self.window.get_width(), self.window.get_height())
+        self.inventory_layer = InventoryLayer(self.player, self.player.inventory, self.window.get_width(), self.window.get_height())
         self.fight_layer = FightLayer(self.player, Enemy(1, 1, Position(0, 0), Direction.NORTH, {"a": 0}, Random()), self.window.get_width(), self.window.get_height())
 
         self.level_layer.info_text.set_text([
@@ -193,6 +193,8 @@ class Game(LayerManager):
                 pieces.remove(None)
             if len(pieces) >= 1:
                 self.room_layer.room_display.room.items[self.player.position] = pieces[0]
+
+        self.player.give_exp(self.fight_layer.enemy_display.enemy.speed + self.fight_layer.enemy_display.enemy.max_health)
 
         self.room_layer.player_display.movement_locked = False
         for enemy in self.room_layer.enemy_displays:
