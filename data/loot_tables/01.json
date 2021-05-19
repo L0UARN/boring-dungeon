@@ -1,7 +1,8 @@
 {
     "items": {
         "leather_boots": 0.33,
-        "stick": 0.5
+        "stick": 0.33,
+        "health_potion": 0.33
     },
     "amount": 2
 }

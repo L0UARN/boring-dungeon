@@ -5,7 +5,9 @@
         "boots": 0.15,
         "sword": 0.15,
         "helmet": 0.15,
-        "axe": 0.10
+        "axe": 0.10,
+        "health_potion": 0.05,
+        "speed_potion": 0.05
     },
     "amount": 1
 }

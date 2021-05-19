@@ -2,7 +2,9 @@
     "items": {
         "cloak": 0.25,
         "hat": 0.25,
-        "dagger": 0.25
+        "dagger": 0.25,
+        "health_potion": 0.25,
+        "speed_potion": 0.25
     },
     "amount": 2
 }

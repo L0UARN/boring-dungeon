@@ -6,7 +6,7 @@ Classes:
 """
 
 from pygame import Surface, event, draw, Rect, MOUSEBUTTONDOWN, mouse, MOUSEMOTION
-from source.item import Item, Weapon, Armor, ArmorSlot, ItemComponent
+from source.item import Item, Weapon, Armor, ArmorSlot, ItemComponent, Consumable
 from source.core.component import Component
 from source.core.tools import Position
 from source.resources import TEXTURES as T
@@ -144,9 +144,10 @@ class InventoryComponent(Component):
     """
     Used to display an inventory.
     """
-    def __init__(self, inventory: Inventory, render_position: Position) -> None:
+    def __init__(self, inventory: Inventory, entity, render_position: Position) -> None:
         """
         :param inventory: The inventory that will be displayed.
+        :param entity: The entity who owns the inventory.
         :param render_position: The position at which to render the inventory.
         """
         self.misc_texture = T.get("inventory_misc")
@@ -155,6 +156,7 @@ class InventoryComponent(Component):
         super().__init__(render_position, self.misc_texture.get_width() + self.equipped_texture.get_width(), self.misc_texture.get_height())
 
         self.inventory = inventory
+        self.entity = entity
 
         self.misc_components = [ItemComponent(Item("empty", 0), Position(0, 0)) for i in range(len(self.inventory.misc))]
         self.armor_components = [ItemComponent(Item("empty", 0), Position(0, 0)) for i in range(len(ArmorSlot))]
@@ -209,6 +211,9 @@ class InventoryComponent(Component):
                             elif isinstance(self.misc_components[i].item, Weapon):
                                 self.inventory.set_weapon(self.misc_components[i].item, True)
                                 self.inventory.remove_item(i)
+                            elif isinstance(self.misc_components[i].item, Consumable):
+                                self.misc_components[i].item.use(self.entity)
+                                self.inventory.remove_item(i)
                             break
 
                     for item in self.armor_components:
@@ -256,7 +261,7 @@ class InventoryLayer(Layer):
         """
         super().__init__(True, width, height)
         self.player = player
-        self.inventory_display = InventoryComponent(inventory, Position(0, 0))
+        self.inventory_display = InventoryComponent(inventory, self.player, Position(0, 0))
         self.inventory_display.render_position = Position((width - self.inventory_display.render_width) // 2, (height - self.inventory_display.render_height) // 2)
         self.stats_text = TextComponent("resources/font.ttf", 24, (255, 255, 255), Position(self.inventory_display.render_position.x, self.inventory_display.render_position.y - 112), self.inventory_display.render_width, 96)
         self.darkener = DarkenerComponent(Position(0, 0), self.width, self.height)
@@ -297,6 +302,8 @@ class InventoryLayer(Layer):
                             lines.append(f"Damage: {item.item.damage}")
                         elif isinstance(item.item, Armor):
                             lines.append(f"Protection: {item.item.protection}")
+                        elif isinstance(item.item, Consumable):
+                            lines.append(f"Effects: {', '.join(item.item.effect_names)}")
                         self.hint_text.set_text(lines)
 
                         self.hint_box.render_position = mouse_position

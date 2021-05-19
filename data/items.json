@@ -54,5 +54,19 @@
         "weight": 2,
         "protection": 2,
         "slot": 2
+    },
+    "health_potion": {
+        "type": "consumable",
+        "weight": 1,
+        "effects": [
+            "healing"
+        ]
+    },
+    "speed_potion": {
+        "type": "consumable",
+        "weight": 1,
+        "effects": [
+            "speed"
+        ]
     }
 }

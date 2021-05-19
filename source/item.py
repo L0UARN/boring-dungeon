@@ -11,8 +11,9 @@ from enum import Enum
 from pygame import Surface, event
 from source.core.component import Component
 from source.core.tools import Position
-from source.core.texture import Texture
 from source.resources import TEXTURES as T
+from source.effects import EFFECTS as E
+from source.traits.effect import Affectible
 
 
 class Item:
@@ -93,3 +94,18 @@ class Armor(Item):
         super().__init__(name, weight)
         self.protection = protection
         self.slot = slot
+
+
+class Consumable(Item):
+    """
+    An item which can be used.
+    """
+    def __init__(self, name: str, weight: int, effect_names: list[str]):
+        super().__init__(name, weight)
+        self.effect_names = effect_names
+
+    def use(self, target: Affectible) -> None:
+        for e in self.effect_names:
+            effect = E.get(e)
+            effect.target = target
+            target.apply_effect(effect)

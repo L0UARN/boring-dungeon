@@ -5,7 +5,9 @@
         "sword": 0.15,
         "helmet": 0.20,
         "axe": 0.10,
-        "plate": 0.10
+        "plate": 0.10,
+        "health_potion": 0.10,
+        "speed_potion": 0.05
     },
     "amount": 1
 }

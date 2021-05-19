@@ -135,6 +135,14 @@
         "type": "ui",
         "path": "resources/boots_item.png"
     },
+    "health_potion_item": {
+        "type": "ui",
+        "path": "resources/health_potion_item.png"
+    },
+    "speed_potion_item": {
+        "type": "ui",
+        "path": "resources/speed_potion_item.png"
+    },
     "player_fighting": {
         "type": "ui",
         "path": "resources/player_fighting.png"

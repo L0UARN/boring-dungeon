@@ -6,7 +6,7 @@ Classes:
 
 from json import loads
 from random import Random
-from source.item import Item, Armor, Weapon, ArmorSlot
+from source.item import Item, Armor, Weapon, ArmorSlot, Consumable
 
 
 class ItemBook:
@@ -30,6 +30,8 @@ class ItemBook:
                 self.items[item] = Armor(item, data[item]["weight"], data[item]["protection"], ArmorSlot(data[item]["slot"]))
             elif data[item]["type"] == "weapon":
                 self.items[item] = Weapon(item, data[item]["weight"], data[item]["damage"])
+            elif data[item]["type"] == "consumable":
+                self.items[item] = Consumable(item, data[item]["weight"], data[item]["effects"])
             else:
                 self.items[item] = Item(item, data[item]["weight"])
 

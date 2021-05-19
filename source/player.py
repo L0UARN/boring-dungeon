@@ -91,6 +91,8 @@ class ExploringPlayerComponent(Component):
                 self.player.step_in_direction(Direction.WEST)
                 self.last_moved = time()
 
+        self.player.update_effects(events)
+
     def render(self, surface: pg.Surface) -> None:
         """ Renders the player on the specified surface.
 
@@ -121,6 +123,8 @@ class FightingPlayerComponent(Component):
             self.player.blocking = True
         else:
             self.player.blocking = False
+
+        self.player.update_effects(events)
 
     def render(self, surface: Surface) -> None:
         if self.player.blocking:

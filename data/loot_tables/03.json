@@ -3,7 +3,9 @@
         "leather_boots": 0.15,
         "cloak": 0.25,
         "hat": 0.25,
-        "dagger": 0.10
+        "dagger": 0.10,
+        "speed_potion": 0.10,
+        "health_potion": 0.15
     },
     "amount": 2
 }

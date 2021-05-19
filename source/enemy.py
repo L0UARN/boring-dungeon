@@ -86,6 +86,8 @@ class RoamingEnemyComponent(Component):
                 self.destination = self.enemy.rng.choice(list(self.enemy.graph.keys()))
             self.last_moved = time()
 
+        self.enemy.update_effects(events)
+
     def render(self, surface: Surface) -> None:
         """ Renders the enemy.
 
@@ -127,6 +129,8 @@ class FightingEnemyComponent(Component):
                     self.block_time = time()
                 elif self.enemy.attack(self.target):
                     self.last_action = 0
+
+        self.enemy.update_effects(events)
 
     def render(self, surface: Surface) -> None:
         if self.enemy.blocking:
