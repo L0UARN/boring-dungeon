@@ -5,6 +5,7 @@ Classes:
 """
 
 from random import Random
+from time import time
 from math import ceil, floor
 from pygame import event, Surface
 from source.core.tools import Position, Direction
@@ -218,6 +219,9 @@ class RoomLayer(Layer):
         self.info_box = BoxComponent(Position(0, int(height * 0.75)), width, int(height * 0.25))
         self.info_text = TextComponent("resources/font.ttf", 32, (0, 0, 0), Position(0, int(height * 0.75)), width, int(height * 0.25), True, 16.0)
 
+        self.last_pickup = 0
+        self.pickup_text = TextComponent("resources/font.ttf", 24, (255, 255, 255), Position(0, self.info_box.render_position.y - 48), width, 48, True, 16.0)
+
     def update(self, events: list[event.Event]) -> None:
         """ Updates the layer.
 
@@ -252,6 +256,8 @@ class RoomLayer(Layer):
 
         if self.player_display.player.position in self.room_display.room.items:
             if self.player_display.player.inventory.add_item(self.room_display.room.items[self.player_display.player.position]) != -1:
+                self.pickup_text.set_text([f"Picked up {self.room_display.room.items[self.player_display.player.position].name}"])
+                self.last_pickup = time()
                 self.room_display.room.items.pop(self.player_display.player.position)
 
     def render(self, surface: Surface) -> None:
@@ -273,3 +279,6 @@ class RoomLayer(Layer):
         self.halo_effect.render(surface)
         self.info_box.render(surface)
         self.info_text.render(surface)
+
+        if time() - self.last_pickup <= 4.0:
+            self.pickup_text.render(surface)
