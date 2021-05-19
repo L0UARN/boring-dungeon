@@ -20,6 +20,7 @@ from source.loot import ITEMS, LootTable
 from source.enemy import RoamingEnemyComponent, Enemy
 from source.fight import FightLayer
 from source.item import ArmorSlot
+from source.end import EndLayer
 
 
 class Game(LayerManager):
@@ -49,6 +50,7 @@ class Game(LayerManager):
         self.room_layer: RoomLayer = None
         self.inventory_layer: InventoryLayer = None
         self.fight_layer: FightLayer = None
+        self.end_layer: EndLayer = None
 
         self.menu_layer = MenuLayer(self.window.get_width(), self.window.get_height())
 
@@ -98,6 +100,7 @@ class Game(LayerManager):
         self.room_layer = RoomLayer(list(self.rooms.values())[0], self.player, self.window.get_width(), self.window.get_height())
         self.inventory_layer = InventoryLayer(self.player, self.player.inventory, self.window.get_width(), self.window.get_height())
         self.fight_layer = FightLayer(self.player, Enemy(1, 1, Position(0, 0), Direction.NORTH, {"a": 0}, Random()), self.window.get_width(), self.window.get_height())
+        self.end_layer = EndLayer(self.player, 0, self.window.get_width(), self.window.get_height())
 
         self.level_layer.info_text.set_text([
             f"Level: {self.level.difficulty}",
@@ -108,6 +111,7 @@ class Game(LayerManager):
         self.add_layer("room", self.room_layer)
         self.add_layer("inventory", self.inventory_layer)
         self.add_layer("fight", self.fight_layer)
+        self.add_layer("end", self.end_layer)
         self.set_focus("level")
 
     def _level_down(self) -> None:
@@ -202,6 +206,11 @@ class Game(LayerManager):
 
         self.set_focus("room")
 
+    def _end(self) -> None:
+        self.end_layer = EndLayer(self.player, self.level_layer.level_display.level.difficulty, self.window.get_width(), self.window.get_height())
+        self.layers["end"] = self.end_layer
+        self.set_focus("end")
+
     def update(self, events: list[pg.event.Event]) -> None:
         """ Updates the game.
 
@@ -235,6 +244,11 @@ class Game(LayerManager):
         elif self.get_focus() == "fight":
             if self.fight_layer.ended:
                 self._exit_fight()
+                if self.player.health == 0:
+                    self._end()
+        elif self.get_focus() == "end":
+            if self.end_layer.button.is_clicked:
+                self.set_focus("menu")
 
         for event in events:
             if event.type == pg.KEYDOWN:
