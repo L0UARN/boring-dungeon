@@ -240,6 +240,7 @@ class Game(LayerManager):
                         break
 
                 if enemy_id != -1:
+                    self.room_layer.room_display.room.enemies.pop(enemy_id)
                     self.room_layer.enemy_displays.pop(enemy_id)
         elif self.get_focus() == "fight":
             if self.fight_layer.ended:
