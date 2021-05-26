@@ -10,7 +10,7 @@ class Mobile:
     """
     A mobile entity is an entity which can move inside a graph.
     """
-    def __init__(self, position: Position, direction: Direction, graph: dict[Position, [Position]]) -> None:
+    def __init__(self, position: Position, direction: Direction, graph: dict[Position, list[Position]]) -> None:
         """
         :param position: The initial position of the entity inside of the graph.
         :param direction: The initial orientation of the entity.
@@ -57,13 +57,7 @@ class Mobile:
                     opened.append(neighbor)
                     parents[neighbor] = temp
 
-        path = []
-        point = position
-        while parents[point] is not None:
-            path = [point] + path
-            point = parents[point]
-
-        return True if path else False
+        return bool(parents) and position in parents
 
     def move_towards(self, position: Position, teleport: bool = False) -> bool:
         """ Calculates a path to the specified position, then moves the entity 1 step towards the position if a valid
@@ -96,14 +90,15 @@ class Mobile:
                     opened.append(neighbor)
                     parents[neighbor] = temp
 
+        if not parents or position not in parents:
+            return False
+
         path = []
         point = position
         while parents[point] is not None:
             path = [point] + path
             point = parents[point]
 
-        if path:
-            self.direction = path[0].direction_of(self.position)
-            self.position = path[0]
-            return True
-        return False
+        self.direction = path[0].direction_of(self.position)
+        self.position = path[0]
+        return True

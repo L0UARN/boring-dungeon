@@ -81,9 +81,11 @@ class RoamingEnemyComponent(Component):
                 self.taking_break = True
                 self.break_start = time()
                 self.last_break_update = time()
-            elif not self.enemy.move_towards(self.destination):
+            elif not self.enemy.has_path(self.destination):
                 self.enemy.direction = self.enemy.rng.choice(self.enemy.direction.possible_turns())
                 self.destination = self.enemy.rng.choice(list(self.enemy.graph.keys()))
+            else:
+                self.enemy.move_towards(self.destination)
             self.last_moved = time()
 
         self.enemy.update_effects(events)
