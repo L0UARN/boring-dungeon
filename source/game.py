@@ -22,6 +22,7 @@ from source.fight import FightLayer
 from source.item import ArmorSlot
 from source.end import EndLayer
 from source.ui.darkener import DarkenerComponent
+from source.pause import PauseLayer
 
 
 class Game(LayerManager):
@@ -52,6 +53,7 @@ class Game(LayerManager):
         self.inventory_layer: InventoryLayer = None
         self.fight_layer: FightLayer = None
         self.end_layer: EndLayer = None
+        self.pause_layer: PauseLayer = None
 
         self.menu_layer = MenuLayer(self.window.get_width(), self.window.get_height())
         self.transition_layer = Layer(True, self.window.get_width(), self.window.get_height())
@@ -60,16 +62,18 @@ class Game(LayerManager):
         self.add_layer("transition", self.transition_layer)
         self.set_focus("menu")
 
+        self.run = False
+
     def start(self) -> None:
         """
         Starts the game's loop.
         """
-        run = True
-        while run:
+        self.run = True
+        while self.run:
             events = pg.event.get()
             for event in events:
                 if event.type == pg.QUIT:
-                    run = False
+                    self.run = False
 
             self.update(events)
             self.render(self.window)
@@ -104,6 +108,7 @@ class Game(LayerManager):
         self.inventory_layer = InventoryLayer(self.player, self.player.inventory, self.window.get_width(), self.window.get_height())
         self.fight_layer = FightLayer(self.player, Enemy(1, 1, Position(0, 0), Direction.NORTH, {"a": 0}, Random()), self.window.get_width(), self.window.get_height())
         self.end_layer = EndLayer(self.player, 0, self.window.get_width(), self.window.get_height())
+        self.pause_layer = PauseLayer(self.window.get_width(), self.window.get_height())
 
         self.level_layer.info_text.set_text([
             f"Level: {self.level.difficulty}",
@@ -115,6 +120,7 @@ class Game(LayerManager):
         self.add_layer("inventory", self.inventory_layer)
         self.add_layer("fight", self.fight_layer)
         self.add_layer("end", self.end_layer)
+        self.add_layer("pause", self.pause_layer)
         self.set_focus("level")
 
         self.transition_layer.add_component("fade", DarkenerComponent(Position(0, 0), self.window.get_width(), self.window.get_height(), True, 255, 0, 1.0))
@@ -277,10 +283,20 @@ class Game(LayerManager):
         elif self.get_focus() == "transition":
             if self.transition_layer.get_component("fade").done:
                 self.unfocus()
+        elif self.get_focus() == "pause":
+            if self.pause_layer.resume_button.is_clicked:
+                self.unfocus()
+                self.pause_layer.resume_button.is_clicked = False
+            if self.pause_layer.quit_button.is_clicked:
+                self.run = False
 
         for event in events:
             if event.type == pg.KEYDOWN:
                 if (event.key == pg.K_e or event.key == pg.K_i) and (self.get_focus() == "level" or self.get_focus() == "room" or self.get_focus() == "fight"):
                     self.set_focus("inventory")
                 elif (event.key == pg.K_ESCAPE or event.key == pg.K_e or event.key == pg.K_i) and self.get_focus() == "inventory":
+                    self.unfocus()
+                elif event.key == pg.K_ESCAPE and (self.get_focus() == "level" or self.get_focus() == "room" or self.get_focus() == "fight"):
+                    self.set_focus("pause")
+                elif event.key == pg.K_ESCAPE and self.get_focus() == "pause":
                     self.unfocus()
