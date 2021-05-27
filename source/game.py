@@ -290,6 +290,9 @@ class Game(LayerManager):
                 self.pause_layer.resume_button.is_clicked = False
             if self.pause_layer.quit_button.is_clicked:
                 self.run = False
+            if self.pause_layer.menu_button.is_clicked:
+                self.set_focus("menu")
+                self.pause_layer.menu_button.is_clicked = False
 
         for event in events:
             if event.type == pg.KEYDOWN:
