@@ -214,26 +214,27 @@ class Game(LayerManager):
         """
         Stops the fight screen and goes back to room exploration.
         """
-        if self.fight_layer.enemy_display.enemy.speed >= self.fight_layer.enemy_display.enemy.inventory.get_protection():
-            weapon = self.fight_layer.enemy_display.enemy.inventory.get_weapon()
-            if weapon is not None:
-                self.room_layer.room_display.room.items[self.player.position] = weapon
-        else:
-            pieces = [self.fight_layer.enemy_display.enemy.inventory.get_armor(s) for s in ArmorSlot]
-            while None in pieces:
-                pieces.remove(None)
-            if len(pieces) >= 1:
-                self.room_layer.room_display.room.items[self.player.position] = pieces[0]
+        if not self.player.is_dead():
+            if self.fight_layer.enemy_display.enemy.speed >= self.fight_layer.enemy_display.enemy.inventory.get_protection():
+                weapon = self.fight_layer.enemy_display.enemy.inventory.get_weapon()
+                if weapon is not None:
+                    self.room_layer.room_display.room.items[self.player.position] = weapon
+            else:
+                pieces = [self.fight_layer.enemy_display.enemy.inventory.get_armor(s) for s in ArmorSlot]
+                while None in pieces:
+                    pieces.remove(None)
+                if len(pieces) >= 1:
+                    self.room_layer.room_display.room.items[self.player.position] = pieces[0]
 
-        self.player.give_exp(self.fight_layer.enemy_display.enemy.speed + self.fight_layer.enemy_display.enemy.max_health)
+            self.player.give_exp(self.fight_layer.enemy_display.enemy.speed + self.fight_layer.enemy_display.enemy.max_health)
 
-        self.room_layer.player_display.movement_locked = False
-        for enemy in self.room_layer.enemy_displays:
-            enemy.ai_locked = False
+            self.room_layer.player_display.movement_locked = False
+            for enemy in self.room_layer.enemy_displays:
+                enemy.ai_locked = False
 
         self.set_focus("room")
 
-        self.transition_layer.add_component("fade", DarkenerComponent(Position(0, 0), self.window.get_width(),self.window.get_height(), True, 255, 0, 1.0))
+        self.transition_layer.add_component("fade", DarkenerComponent(Position(0, 0), self.window.get_width(), self.window.get_height(), True, 255, 0, 1.0))
         self.set_focus("transition")
 
     def _end(self) -> None:
